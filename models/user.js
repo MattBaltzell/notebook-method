@@ -8,8 +8,8 @@ const { BCRYPT_WORK_FACTOR } = require('../config.js');
 class User {
   /** register new user */
 
-  static async register({ username, email, password, first_name, last_name }) {
-    const hashed_pw = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
+  static async register({ username, email, password, firstName, lastName }) {
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
     const results = await db.query(
       `INSERT INTO users (
         username, 
@@ -20,8 +20,8 @@ class User {
         last_name,
         join_at ) 
         VALUES ($1, 1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
-        RETURNING id, username, user_type_id, email, first_name, last_name, join_at`,
-      [username, email, hashed_pw, first_name, last_name]
+        RETURNING id, username, user_type_id AS "userTypeID", email, first_name AS "firstName", last_name AS "lastName", join_at AS joinAt`,
+      [username, email, hashedPassword, firstName, lastName]
     );
 
     return results.rows[0];
@@ -50,12 +50,12 @@ class User {
     );
   }
 
-  static async updateUserType(user_type_id, user_id) {
+  static async updateUserType(userTypeID, userID) {
     await db.query(
       `UPDATE users
         SET user_type_id=$1
         WHERE id=$2`,
-      [user_type_id, user_id]
+      [userTypeID, userID]
     );
   }
 
@@ -66,12 +66,12 @@ class User {
           id,
           username,
           email,
-          first_name,
-          last_name,
-          user_type_id,
-          avatar_url,
-          join_at,
-          last_login_at
+          first_name AS "firstName",
+          last_name AS "lastName",
+          user_type_id AS "userTypeID",
+          avatar_url AS "avatarURL",
+          join_at AS "joinAt",
+          last_login_at AS "lastLoginAt"
         FROM users
         ORDER BY id`
     );
@@ -86,12 +86,12 @@ class User {
         id,
         username,
         email,
-        first_name,
-        last_name,
-        user_type_id,
-        avatar_url,
-        join_at,
-        last_login_at
+        first_name AS "firstName",
+        last_name AS "lastName",
+        user_type_id AS "userTypeID",
+        avatar_url AS "avatarURL",
+        join_at AS "joinAt",
+        last_login_at AS "lastLoginAt"
       FROM users
       WHERE username=$1`,
       [username]
@@ -104,7 +104,7 @@ class User {
   }
 
   /** update a user */
-  static async update({ username, email, first_name, last_name, avatar_url }) {
+  static async update({ username, email, firstName, lastName, avatarURL }) {
     const results = await db.query(
       `UPDATE users 
         SET
@@ -114,8 +114,8 @@ class User {
           last_name = $4,
           avatar_url = $5
         WHERE username = $1
-        RETURNING id, username, email, password, first_name, last_name, user_type_id, avatar_url`,
-      [username, email, first_name, last_name, avatar_url]
+        RETURNING id, username, email, password, first_name AS "firstName", last_name AS "lastName", user_type_id AS "userTypeID", avatar_url AS "avatarURL"`,
+      [username, email, firstName, lastName, avatarURL]
     );
 
     return results.rows[0];
