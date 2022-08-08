@@ -33,7 +33,7 @@ router.get('/:username', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const teacher = await Teacher.add(req.body);
-    await Teacher.updateUserType(teacher);
+    await User.updateUserType(2, user_id);
     return res.send({ teacher });
   } catch (err) {
     return next(err);
