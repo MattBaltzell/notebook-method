@@ -1,8 +1,22 @@
-/** Database */
+'use strict';
+/** Database setup for homeschool helper. */
+const { Client } = require('pg');
+const { getDatabaseUri } = require('./config');
 
-const pg = require('pg');
+let db;
 
-const db = new pg.Client('postgresql:///homeschool-helper');
+if (process.env.NODE_ENV === 'production') {
+  db = new Client({
+    connectionString: getDatabaseUri(),
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+} else {
+  db = new Client({
+    connectionString: getDatabaseUri(),
+  });
+}
 
 db.connect();
 
