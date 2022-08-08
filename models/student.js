@@ -1,21 +1,21 @@
 /** Student  */
 
 const db = require('../db');
-const ExpressError = require('../expressError');
+const { NotFoundError } = require('../expressError');
 
 class Student {
   /** get all students */
   static async getAll() {
     const results = await db.query(
       `SELECT 
-          u.id AS user_id,
-          s.id AS student_id, 
+          u.id AS "userID",
+          s.id AS "studentID", 
           u.username,
           u.email,
-          u.first_name,
-          u.last_name,
-          u.user_type_id,
-          s.teacher_id,
+          u.first_name AS "firstName", 
+          u.last_name AS "lastName",
+          u.user_type_id as "userTypeID",
+          s.teacher_id AS "teacherID",
           s.grade
         FROM users AS u
         JOIN students AS s
@@ -31,16 +31,15 @@ class Student {
   static async get(username) {
     const results = await db.query(
       `SELECT 
-          u.id AS user_id,
-          s.id AS student_id, 
-          u.password,
+          u.id AS "userID",
+          s.id AS "studentID", 
           u.username,
           u.email,
-          u.first_name,
-          u.last_name,
-          u.user_type_id,
-          u.avatar_url,
-          s.teacher_id,
+          u.first_name AS "firstName", 
+          u.last_name AS "lastName",
+          u.user_type_id AS "userTypeID",
+          u.avatar_url AS "avatarURL",
+          s.teacher_id AS "teacherID",
           s.grade
         FROM users AS u
         JOIN students AS s
@@ -51,20 +50,20 @@ class Student {
     );
 
     if (!results.rows[0]) {
-      throw new ExpressError(`Student not found`, 404);
+      throw new NotFoundError(`Student not found`);
     }
     return results.rows[0];
   }
 
-  static async add({ user_id, teacher_id, grade }) {
+  static async add({ userID, teacherID, grade }) {
     const results = await db.query(
       `INSERT INTO students (
         user_id, 
         teacher_id,  
         grade) 
         VALUES ($1, $2, $3) 
-        RETURNING id, user_id, teacher_id, grade`,
-      [user_id, teacher_id, grade]
+        RETURNING id, user_id AS "userID", teacher_id AS "teacherID", grade`,
+      [userID, teacherID, grade]
     );
 
     // Need to add error handling for when student already exists
@@ -73,31 +72,31 @@ class Student {
   }
 
   /** update a student */
-  static async update({ id, teacher_id, grade }) {
+  static async update({ id, teacherID, grade }) {
     const results = await db.query(
       `UPDATE students 
         SET
           teacher_id = $1,  
           grade = $2 
         WHERE id = $3
-        RETURNING id, teacher_id, grade`,
-      [teacher_id, grade, id]
+        RETURNING id, teacher_id AS "teacherID", grade`,
+      [teacherID, grade, id]
     );
 
     return results.rows[0];
   }
 
   /** delete a student */
-  static async delete(id) {
+  static async delete(studentID) {
     const results = await db.query(
       `DELETE
           FROM students
           WHERE id = $1
           RETURNING id
           `,
-      [id]
+      [studentID]
     );
-
+    if (!results.rows[0]) throw new NotFoundError('Student not found.');
     return results.rows[0];
   }
 }
