@@ -31,9 +31,9 @@ router.get('/:username', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const { user_id, teacher_id, grade } = req.body;
-    const student = await Student.add({ user_id, teacher_id, grade });
-    await User.updateUserType(3, user_id);
+    const { userID, teacherID, grade } = req.body;
+    const student = await Student.add({ userID, teacherID, grade });
+    await User.updateUserType(3, userID);
     return res.send({ student });
   } catch (err) {
     return next(err);
@@ -75,11 +75,11 @@ router.put('/:username', async (req, res, next) => {
 router.delete('/:username', async (req, res, next) => {
   try {
     const student = await Student.get(req.params.username);
-    const result = await Student.delete(student.student_id);
+    const result = await Student.delete(student.studentID);
     if (!result.id) {
       throw new ExpressError(`Student with id of ${id} cannot be found.`, 400);
     }
-    await User.updateUserType(1, student.user_id);
+    await User.updateUserType(1, student.userID);
     return res.send({ message: 'Deleted.' });
   } catch (err) {
     return next(err);
