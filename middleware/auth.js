@@ -39,7 +39,10 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
-/** Middleware: Requires correct username. */
+/** Middleware: Requires correct username.
+ *
+ * If not, raises Unauthorized.
+ */
 
 function ensureCorrectUser(req, res, next) {
   try {
@@ -51,12 +54,15 @@ function ensureCorrectUser(req, res, next) {
   }
 }
 
-/** Middleware: Requires user's user_type_id is 2 for teacher. */
+/** Middleware: Requires user's userTypeId to be 2 for teacher.
+ *
+ * If not, raises Unauthorized.
+ */
 
 function ensureTeacher(req, res, next) {
   try {
     const user = User.get(res.locals.user.username);
-    if (user.user_type_id !== 2) throw new UnauthorizedError();
+    if (user.userTypeId !== 2) throw new UnauthorizedError();
   } catch (err) {
     return next(err);
   }
