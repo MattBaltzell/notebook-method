@@ -1,6 +1,10 @@
 'use strict';
 
-const { UnauthorizedError, BadRequestError } = require('../expressError');
+const {
+  UnauthorizedError,
+  BadRequestError,
+  NotFoundError,
+} = require('../expressError');
 const db = require('../db.js');
 const User = require('./user.js');
 const {
@@ -104,11 +108,11 @@ describe('updateLoginTimestamp', function () {
       password: 'password',
     });
     // Test that last_login_at is null before executing updateLoginTimestamp()
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
-    expect(found.rows[0].last_login_at).toBeNull();
+    const found1 = await db.query("SELECT * FROM users WHERE username = 'new'");
+    expect(found1.rows[0].last_login_at).toBeNull();
 
     // Test that last_login_at is a valid date after executing updateLoginTimestamp()
-    User.updateLoginTimestamp(found.rows[0].username);
+    User.updateLoginTimestamp(found1.rows[0].username);
     const found2 = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found2.rows[0].last_login_at).not.toBeNull();
     expect(found2.rows[0].last_login_at).toEqual(expect.any(Date));
@@ -130,14 +134,72 @@ describe('updateUserType', function () {
       password: 'password',
     });
     // Test that user_type_id is 1 by default before executing updateUserType()
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
-    expect(found.rows[0].user_type_id).toEqual(1);
+    const found1 = await db.query("SELECT * FROM users WHERE username = 'new'");
+    expect(found1.rows[0].user_type_id).toEqual(1);
 
     // Test that last_login_at is a valid date after executing updateUserType()
-    User.updateUserType(2, found.rows[0].id);
+    User.updateUserType(2, found1.rows[0].id);
     const found2 = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found2.rows[0].user_type_id).toEqual(2);
   });
 });
 
 /************************************** getAll() */
+
+describe('getAll', function () {
+  test('works', async function () {
+    const users = await User.getAll();
+    expect(users).toEqual([
+      {
+        id: expect.any(Number),
+        username: 'u1',
+        firstName: 'U1F',
+        lastName: 'U1L',
+        email: 'u1@email.com',
+        avatarURL: null,
+        userTypeID: 1,
+        joinAt: expect.any(Date),
+        lastLoginAt: null,
+      },
+      {
+        id: expect.any(Number),
+        username: 'u2',
+        firstName: 'U2F',
+        lastName: 'U2L',
+        email: 'u2@email.com',
+        avatarURL: null,
+        userTypeID: 1,
+        joinAt: expect.any(Date),
+        lastLoginAt: null,
+      },
+    ]);
+  });
+});
+
+/************************************** get() */
+
+describe('get', function () {
+  test('works', async function () {
+    const user = await User.get('u1');
+    expect(user).toEqual({
+      id: expect.any(Number),
+      username: 'u1',
+      firstName: 'U1F',
+      lastName: 'U1L',
+      email: 'u1@email.com',
+      avatarURL: null,
+      userTypeID: 1,
+      joinAt: expect.any(Date),
+      lastLoginAt: null,
+    });
+  });
+
+  test('not found if no such user', async function () {
+    try {
+      await User.get('nope');
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
