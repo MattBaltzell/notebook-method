@@ -36,7 +36,7 @@ class User {
       last_name,
       join_at ) 
       VALUES ($1, 1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
-      RETURNING username, email, first_name AS "firstName", last_name AS "lastName"`,
+      RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName"`,
       [username, email, hashedPassword, firstName, lastName]
     );
 
@@ -77,11 +77,12 @@ class User {
 
   static async updateLoginTimestamp(username) {
     const result = await db.query(
-      'UPDATE users SET last_login_at=NOW() WHERE username=$1',
+      `UPDATE users SET last_login_at=NOW() WHERE username=$1
+      RETURNING username, last_login_at AS "lastLoginAt"`,
       [username]
     );
     const user = result.rows[0];
-    if (!user) throw new NotFoundError(`No user with userID of ${userID}`);
+    if (!user) throw new NotFoundError(`No user with username of ${username}`);
   }
 
   static async updateUserType(userTypeID, userID) {
