@@ -1,6 +1,17 @@
+const jsonschema = require('jsonschema');
+
 const express = require('express');
-const router = new express.Router();
+const { ensureLoggedIn } = require('../middleware/auth');
+const {
+  NotFoundError,
+  UnauthorizedError,
+  BadRequestError,
+} = require('../expressError');
+4;
+const userUpdateSchema = require('../schemas/userUpdate.json');
 const User = require('../models/user');
+
+const router = new express.Router();
 
 /** Show all users */
 
@@ -25,15 +36,28 @@ router.get('/:username', async (req, res, next) => {
   }
 });
 
-/** Edit a user */
-// Will need to add Auth middlewhere to ensure CORRECT USER ONLY access
-
-router.put('/:username', async (req, res, next) => {
+/** PATCH /[username] { user } => { user }
+ *
+ * Data can include:
+ *   { firstName, lastName, password, email, avatarURL }
+ *
+ * Returns { username, firstName, lastName, email, avatarURL }
+ *
+ * Authorization required: login
+ **/
+// ensureLoggedIn
+router.patch('/:username', async function (req, res, next) {
   try {
-    const user = await User.update(req.body);
-    return res.send({ user });
-  } catch (e) {
-    next(e);
+    const validator = jsonschema.validate(req.body, userUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map((e) => e.stack);
+      throw new BadRequestError(errs);
+    }
+
+    const user = await User.update(req.params.username, req.body);
+    return res.json({ user });
+  } catch (err) {
+    return next(err);
   }
 });
 
