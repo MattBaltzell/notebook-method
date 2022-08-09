@@ -16,3 +16,4 @@ CREATE DATABASE homeschool-helper_test;
 \connect homeschool-helper_test
 
 \i homeschool-helper-schema.sql
+\i homeschool-helper-seed.sql
