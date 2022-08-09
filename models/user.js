@@ -143,18 +143,17 @@ class User {
   }
 
   /** update a user */
-  static async update({ username, email, firstName, lastName, avatarURL }) {
+  static async update(username, { email, firstName, lastName, avatarURL }) {
     const result = await db.query(
       `UPDATE users 
         SET
-          username = $1, 
-          email = $2, 
-          first_name = $3,
-          last_name = $4,
-          avatar_url = $5
-        WHERE username = $1
+          email = $1, 
+          first_name = $2,
+          last_name = $3,
+          avatar_url = $4
+        WHERE username = $5
         RETURNING id, username, email, password, first_name AS "firstName", last_name AS "lastName", user_type_id AS "userTypeID", avatar_url AS "avatarURL"`,
-      [username, email, firstName, lastName, avatarURL]
+      [email, firstName, lastName, avatarURL, username]
     );
 
     const user = result.rows[0];
