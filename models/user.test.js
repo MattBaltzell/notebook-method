@@ -203,3 +203,22 @@ describe('get', function () {
     }
   });
 });
+
+/************************************** delete() */
+
+describe('delete', function () {
+  test('works', async function () {
+    await User.delete('u1');
+    const result = await db.query("SELECT * FROM users WHERE username='u1'");
+    expect(result.rows.length).toEqual(0);
+  });
+
+  test('not found if no such user', async function () {
+    try {
+      await User.delete('nope');
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
