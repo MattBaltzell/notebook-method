@@ -45,7 +45,7 @@ router.get('/:username', async (req, res, next) => {
  *
  * Authorization required: login
  **/
-// ensureLoggedIn
+
 router.patch('/:username', ensureLoggedIn, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, userUpdateSchema);
