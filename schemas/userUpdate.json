@@ -27,7 +27,6 @@
     "avatarURL": {
       "type": "string",
       "minLength": 15,
-      "maxLength": 100,
       "format": "url"
     }
   },
