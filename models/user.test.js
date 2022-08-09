@@ -204,6 +204,40 @@ describe('get', function () {
   });
 });
 
+/************************************** update() */
+
+describe('update', function () {
+  test('works', async function () {
+    await User.update('u1', {
+      email: 'new1@test.com',
+      firstName: 'newF',
+      lastName: 'newL',
+      avatarURL: 'test',
+    });
+    const result = await db.query("SELECT * FROM users WHERE username='u1'");
+    const user = result.rows[0];
+    expect(result.rows.length).toEqual(1);
+    expect(user.email).toEqual('new1@test.com');
+    expect(user.first_name).toEqual('newF');
+    expect(user.last_name).toEqual('newL');
+    expect(user.avatar_url).toEqual('test');
+  });
+
+  test('not found if no such user', async function () {
+    try {
+      await User.update('nope', {
+        email: 'new1@test.com',
+        firstName: 'newF',
+        lastName: 'newL',
+        avatarURL: 'test',
+      });
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
 /************************************** delete() */
 
 describe('delete', function () {
