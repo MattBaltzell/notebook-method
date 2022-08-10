@@ -3,6 +3,7 @@
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
 const { UnauthorizedError } = require('../expressError');
+const User = require('../models/user');
 
 /** Middleware: Authenticate user.
  *
@@ -61,8 +62,10 @@ function ensureCorrectUser(req, res, next) {
 
 function ensureTeacher(req, res, next) {
   try {
-    const user = User.get(res.locals.user.username);
-    if (user.userTypeId !== 2) throw new UnauthorizedError();
+    if (res.locals.user.userTypeID !== 2) {
+      throw new UnauthorizedError('You are not logged into a Teacher account.');
+    }
+    return next();
   } catch (err) {
     return next(err);
   }
