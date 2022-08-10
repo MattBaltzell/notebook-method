@@ -11,7 +11,7 @@ class Student {
    * Returns [{ userID, studentID, username, firstName, lastName, email, userTypeID, grade }]
    *
    */
-  static async getAll() {
+  static async getAll(teacherID) {
     const results = await db.query(
       `SELECT 
           u.id AS "userID",
@@ -25,8 +25,9 @@ class Student {
         FROM users AS u
         JOIN students AS s
           ON s.user_id = u.id
-        ORDER BY grade;
-  `
+          WHERE s.teacher_id=$1
+  `,
+      [teacherID]
     );
 
     return results.rows;
