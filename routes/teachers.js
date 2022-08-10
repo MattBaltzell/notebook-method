@@ -32,9 +32,8 @@ router.get('/:username', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const { userID } = req.body;
-    const teacher = await Teacher.add(userID);
-    await User.updateUserType(2, userID);
+    const { username } = req.body;
+    const teacher = await Teacher.add(username);
     return res.send({ teacher });
   } catch (err) {
     return next(err);
