@@ -11,7 +11,47 @@ const { sqlForPartialUpdate } = require('../helpers/sql');
 const { BCRYPT_WORK_FACTOR } = require('../config.js');
 
 class User {
-  /** register new user */
+  /** Authenticate with username/password.
+   *
+   * Returns { username, first_name, last_name, email, userTypeID }
+   *
+   * Throws UnauthorizedError is user not found or wrong password.
+   *
+   */
+
+  static async authenticate(username, password) {
+    // try to find user first
+    const result = await db.query(
+      `SELECT username,
+              password,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              user_type_id AS "userTypeID"
+           FROM users
+           WHERE username = $1`,
+      [username]
+    );
+    const user = result.rows[0];
+
+    if (user) {
+      // compare hashed password to a new hash from password
+      const isValid = await bcrypt.compare(password, user.password);
+      if (isValid === true) {
+        delete user.password;
+        return user;
+      }
+    }
+
+    throw new UnauthorizedError('Invalid username/password');
+  }
+
+  /** Register user with data
+   *
+   * Returns {id, username, email, firstName, lastName}
+   *
+   * Returns BadRequestError if duplicate is found.
+   */
 
   static async register({ username, email, password, firstName, lastName }) {
     const duplicateCheck = await db.query(
@@ -46,35 +86,12 @@ class User {
     return user;
   }
 
-  /** Authenticate: is this username/password valid? Returns boolean. */
-
-  static async authenticate(username, password) {
-    const result = await db.query(
-      `SELECT username,
-              password,
-              first_name AS "firstName",
-              last_name AS "lastName",
-              email,
-              user_type_id AS "userTypeID"
-           FROM users
-           WHERE username = $1`,
-      [username]
-    );
-    const user = result.rows[0];
-
-    if (user) {
-      // compare hashed password to a new hash from password
-      const isValid = await bcrypt.compare(password, user.password);
-      if (isValid === true) {
-        delete user.password;
-        return user;
-      }
-    }
-
-    throw new UnauthorizedError('Invalid username/password');
-  }
-
-  /** Update last_login_at for user */
+  /** Update last_login_at for user
+   *
+   * Returns {username, lastLoginAt}
+   *
+   * Throws NotFoundError if username not valid
+   */
 
   static async updateLoginTimestamp(username) {
     const result = await db.query(
@@ -86,17 +103,24 @@ class User {
     if (!user) throw new NotFoundError(`No user with username of ${username}`);
   }
 
-  static async updateUserType(userTypeID, userID) {
+  /** Update user_type_id for user
+   *
+   * Returns {id, userTypeID}
+   *
+   * Throws NotFoundError if username not valid
+   */
+
+  static async updateUserType(username, userTypeID) {
     const result = await db.query(
       `UPDATE users
         SET user_type_id=$1
-        WHERE id=$2
-        RETURNING id, user_type_id AS "userTypeID"`,
-      [userTypeID, userID]
+        WHERE username=$2
+        RETURNING username, user_type_id AS "userTypeID"`,
+      [userTypeID, username]
     );
 
     const user = result.rows[0];
-    if (!user) throw new NotFoundError(`No user with userID of ${userID}`);
+    if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
   /** get all users */

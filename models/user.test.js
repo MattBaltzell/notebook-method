@@ -137,8 +137,8 @@ describe('updateUserType', function () {
     const found1 = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found1.rows[0].user_type_id).toEqual(1);
 
-    // Test that last_login_at is a valid date after executing updateUserType()
-    User.updateUserType(2, found1.rows[0].id);
+    // Test that user_type_id changes when updateUserType is called
+    User.updateUserType('new', 2);
     const found2 = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found2.rows[0].user_type_id).toEqual(2);
   });
