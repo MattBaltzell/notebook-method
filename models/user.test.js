@@ -172,6 +172,17 @@ describe('getAll', function () {
         joinAt: expect.any(Date),
         lastLoginAt: null,
       },
+      {
+        id: expect.any(Number),
+        username: 'u3',
+        firstName: 'U3F',
+        lastName: 'U3L',
+        email: 'u3@email.com',
+        avatarURL: null,
+        userTypeID: 1,
+        joinAt: expect.any(Date),
+        lastLoginAt: null,
+      },
     ]);
   });
 });
