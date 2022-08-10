@@ -1,13 +1,16 @@
 const express = require('express');
-const router = new express.Router();
+const { UnauthorizedError } = require('../expressError');
+const { ensureTeacher } = require('../middleware/auth');
 const Student = require('../models/student');
-const User = require('../models/user');
+const Teacher = require('../models/teacher');
+const router = new express.Router();
 
-/** Show all students */
+/** Show all students for a given teacher*/
 
-router.get('/', async function (req, res, next) {
+router.get('/', ensureTeacher, async function (req, res, next) {
   try {
-    const students = await Student.getAll();
+    const { teacherID } = await Teacher.get(req.currentUser.username);
+    const students = await Student.getAll(teacherID);
     return res.send({ students });
   } catch (err) {
     return next(err);
@@ -26,61 +29,58 @@ router.get('/:username', async (req, res, next) => {
   }
 });
 
-/** Create a student */
-// Will need to add Auth middlewhere to ensure TEACHER ONLY access
+/** Create a student
+ *
+ * * Authorization required: Teacher
+ */
 
-router.post('/', async (req, res, next) => {
+router.post('/', ensureTeacher, async (req, res, next) => {
   try {
-    const { userID, teacherID, grade } = req.body;
-    const student = await Student.add({ userID, teacherID, grade });
-    await User.updateUserType(3, userID);
+    const { teacherID } = await Teacher.get(req.currentUser.username);
+    const { username, grade } = req.body;
+    const student = await Student.add(username, teacherID, grade);
     return res.send({ student });
   } catch (err) {
     return next(err);
   }
 });
 
-// router.post('/', ensureTeacher, async (req, res, next) => {
-//   try {
-//     const teacher = await Teacher.get(req.user.username);
-//     const { user_id, grade } = req.body;
-//     const student = await Student.add({
-//       user_id,
-//       teacher_id: teacher.id,
-//       grade,
-//     });
-//     return res.send({ student });
-//   } catch (err) {
-//     return next(err);
-//   }
-// });
+/** Edit a student
+ *
+ * * Authorization required: Teacher
+ */
 
-/** Edit a student */
-// Will need to add Auth middlewhere to ensure CORRECT USER ONLY access
-
-router.put('/:username', async (req, res, next) => {
+router.patch('/:username', ensureTeacher, async (req, res, next) => {
   try {
-    const { student_id } = await Student.get(req.params.username);
-    const { teacher_id, grade } = req.body;
-    const student = await Student.update({ id: student_id, teacher_id, grade });
+    const data = req.body;
+    const student = await Student.update(req.params.username, data);
     return res.send({ student });
   } catch (e) {
     next(e);
   }
 });
 
-/** Delete a student */
-// Will need to add Auth middlewhere to ensure ADMIN ONLY access
+/** Delete a student
+ *
+ * Authorization required: Teacher
+ *
+ * Student.teacherID must equal currentUser.teacherID and currentUser must be a teacher.
+ */
 
-router.delete('/:username', async (req, res, next) => {
+router.delete('/:username', ensureTeacher, async (req, res, next) => {
   try {
-    const student = await Student.get(req.params.username);
-    const result = await Student.delete(student.studentID);
-    if (!result.id) {
-      throw new ExpressError(`Student with id of ${id} cannot be found.`, 400);
+    const { username } = req.params;
+    const student = await Student.get(username);
+    const teacher = await Teacher.get(req.currentUser.username);
+
+    if (teacher.teacherID === student.teacherID) {
+      await Student.delete(username);
+      return res.send({ message: 'Deleted.' });
+    } else {
+      return next(
+        new UnauthorizedError('You are not authorized to delete this student')
+      );
     }
-    await User.updateUserType(1, student.userID);
-    return res.send({ message: 'Deleted.' });
   } catch (err) {
     return next(err);
   }
