@@ -19,6 +19,7 @@ function authenticateJWT(req, res, next) {
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, '').trim();
       res.locals.user = jwt.verify(token, SECRET_KEY);
+      req.currentUser = res.locals.user;
     }
     return next();
   } catch (err) {
@@ -47,6 +48,8 @@ function ensureLoggedIn(req, res, next) {
 
 function ensureCorrectUser(req, res, next) {
   try {
+    // const isCorrectUser = res.locals.user.username === req.params.username
+    // const isCorrectUsersTeacher = res.locals.user.username === req.params.username
     if (res.locals.user.username !== req.params.username)
       throw new UnauthorizedError();
     return next();
