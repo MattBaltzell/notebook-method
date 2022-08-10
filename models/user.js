@@ -105,7 +105,7 @@ class User {
 
   /** Update user_type_id for user
    *
-   * Returns {id, userTypeID}
+   * Returns { id, userTypeID }
    *
    * Throws NotFoundError if username not valid
    */
@@ -123,7 +123,13 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
-  /** get all users */
+  /** Get all users
+   *
+   * Returns { id, username, email, firstName, lastName, userTypeID, avatarURL, joinAt, lastLoginAt }
+   *
+   *
+   */
+
   static async getAll() {
     const result = await db.query(
       `SELECT 
@@ -143,7 +149,13 @@ class User {
     return result.rows;
   }
 
-  /** get user by username */
+  /** Get user by username
+   *
+   * Returns { id, username, email, firstName, lastName, userTypeID, avatarURL, joinAt, lastLoginAt }
+   *
+   * Throws NotFoundError if username not valid
+   */
+
   static async get(username) {
     const result = await db.query(
       `SELECT 
@@ -213,7 +225,13 @@ class User {
     return user;
   }
 
-  /** delete a user */
+  /** Delete a user
+   *
+   * Returns { username }
+   *
+   * Throws NotFoundError if username not valid
+   */
+
   static async delete(username) {
     const result = await db.query(
       `DELETE
