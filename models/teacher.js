@@ -2,14 +2,20 @@
 
 const db = require('../db');
 const { NotFoundError } = require('../expressError');
+const User = require('./user');
 
 class Teacher {
-  /** get all teachers */
+  /** Get all teachers
+   *
+   * Returns [{ userID, teacherID, username, firstName, lastName, email, userTypeID }]
+   *
+   */
+
   static async getAll() {
     const results = await db.query(
       `SELECT 
-        u.id AS userID,
-        t.id AS teacherID, 
+        u.id AS "userID",
+        t.id AS "teacherID", 
         u.username,
         u.first_name AS "firstName", 
         u.last_name AS "lastName",
@@ -22,7 +28,12 @@ class Teacher {
     return results.rows;
   }
 
-  /** find teacher by username. */
+  /** Get teacher by username.
+   *
+   * Returns { userID, teacherID, username, firstName, lastName, email, userTypeID, avatarURL, joinAt, lastLoginAt }
+   *
+   * Throws NotFoundError if username not valid
+   */
 
   static async get(username) {
     const results = await db.query(
@@ -33,7 +44,6 @@ class Teacher {
         u.first_name AS "firstName", 
         u.last_name AS "lastName",
         u.email, 
-        u.password,
         u.user_type_id AS "userTypeID",
         u.avatar_url AS "avatarURL", 
         u.join_at AS "joinAt", 
@@ -44,37 +54,89 @@ class Teacher {
       WHERE username ILIKE $1`,
       [username]
     );
-    if (!results.rows[0]) {
+    const user = results.rows[0];
+
+    if (!user) {
+      throw new NotFoundError(`No teacher: ${username}`);
+    }
+
+    return user;
+  }
+
+  /** Add new teacher with username.
+   *
+   * Updates user_type_id to 2
+   *
+   * Returns { userID, teacherID }
+   *
+   * Throws NotFoundError if username not valid
+   */
+
+  static async add(username) {
+    const userRes = await db.query(
+      `SELECT id, username FROM users WHERE username=$1`,
+      [username]
+    );
+    const user = userRes.rows[0];
+
+    if (!user) {
+      throw new NotFoundError(`No user: ${username}`);
+    }
+
+    const teacherRes = await db.query(
+      `INSERT INTO teachers (user_id) 
+      VALUES ($1) 
+      RETURNING user_id AS "userID", id AS "teacherID"`,
+      [user.id]
+    );
+
+    const teacher = teacherRes.rows[0];
+
+    User.updateUserType(username, 2);
+
+    if (!teacher) {
       throw new NotFoundError(`Teacher not found`);
     }
-    return results.rows[0];
+
+    return teacher;
   }
 
-  /** add new teacher. */
+  /** Delete teacher by username.
+   *
+   * * Updates user_type_id to 1
+   *
+   * Returns { username }
+   *
+   * Throws NotFoundError if username is not valid
+   */
 
-  static async add(userID) {
-    const results = await db.query(
-      `INSERT INTO teachers (user_id) 
-        VALUES ($1) 
-        RETURNING id, user_id AS "userID"`,
-      [userID]
+  static async delete(username) {
+    const userRes = await db.query(
+      `SELECT id 
+        FROM users 
+        WHERE username=$1
+      `,
+      [username]
     );
+    const user = userRes.rows[0];
 
-    return results.rows[0];
-  }
+    if (!user) {
+      throw new NotFoundError(`No user: ${username}`);
+    }
 
-  /** delete teacher. */
-
-  static async delete(id) {
-    const results = await db.query(
+    const teacherRes = await db.query(
       `DELETE
         FROM teachers
-        WHERE id=$1
-        RETURNING id
+        WHERE user_id=$1
+        RETURNING user_id AS "userID"
       `,
-      [id]
+      [user.id]
     );
-    return results.rows[0];
+    const teacher = teacherRes.rows[0];
+
+    User.updateUserType(username, 1);
+
+    return teacher;
   }
 }
 
