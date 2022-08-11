@@ -22,7 +22,7 @@ describe('getAll', function () {
   test('works', async function () {
     const teacher = await Teacher.add('u2');
     await Student.add('u1', teacher.teacherID, '3');
-    const students = await Student.getAll();
+    const students = await Student.getAll(teacher.teacherID);
     expect(students).toEqual([
       {
         userID: expect.any(Number),
