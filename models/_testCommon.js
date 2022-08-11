@@ -5,6 +5,9 @@ const { BCRYPT_WORK_FACTOR } = require('../config');
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
+  await db.query('DELETE FROM assignments');
+  await db.query('DELETE FROM students');
+  await db.query('DELETE FROM teachers');
   await db.query('DELETE FROM users');
   await db.query(
     `
