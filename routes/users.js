@@ -1,7 +1,7 @@
 const jsonschema = require('jsonschema');
 
 const express = require('express');
-const { ensureLoggedIn } = require('../middleware/auth');
+const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 const {
   NotFoundError,
   UnauthorizedError,
@@ -46,7 +46,7 @@ router.get('/:username', async (req, res, next) => {
  * Authorization required: login
  **/
 
-router.patch('/:username', ensureLoggedIn, async function (req, res, next) {
+router.patch('/:username', ensureCorrectUser, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, userUpdateSchema);
     if (!validator.valid) {
@@ -68,9 +68,8 @@ router.delete('/:username', async (req, res, next) => {
   try {
     const result = await User.delete(req.params.username);
     if (!result.username) {
-      throw new ExpressError(
-        `User with username of ${username} cannot be found.`,
-        400
+      throw new NotFoundError(
+        `User with username of ${username} cannot be found.`
       );
     }
     return res.send({ message: 'Deleted.' });
