@@ -41,6 +41,21 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/** Middleware to use when they must be logged in as an Admin.
+ *
+ * If not, raises Unauthorized.
+ */
+
+function ensureAdmin(req, res, next) {
+  try {
+    if (!res.locals.user || res.locals.user.isAdmin === false)
+      throw new UnauthorizedError();
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
 /** Middleware: Requires correct username.
  *
  * If not, raises Unauthorized.
@@ -48,10 +63,13 @@ function ensureLoggedIn(req, res, next) {
 
 function ensureCorrectUser(req, res, next) {
   try {
-    // const isCorrectUser = res.locals.user.username === req.params.username
-    // const isCorrectUsersTeacher = res.locals.user.username === req.params.username
-    if (res.locals.user.username !== req.params.username)
+    if (!res.locals.user) throw new UnauthorizedError();
+    if (
+      res.locals.user.username !== req.params.username &&
+      res.locals.user.isAdmin === false
+    ) {
       throw new UnauthorizedError();
+    }
     return next();
   } catch (err) {
     return next(err);
@@ -77,6 +95,7 @@ function ensureTeacher(req, res, next) {
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin,
   ensureCorrectUser,
   ensureTeacher,
 };
