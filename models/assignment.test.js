@@ -43,36 +43,40 @@ describe('create', function () {
 });
 
 /************************************** toggleSubmit() */
-//Need to update toggleSubmit method to make these tests run properly
+// Need to update toggleSubmit method to make these tests run properly
 
-// describe('toggleSubmit', function () {
-//   test('works', async function () {
-//     const teacher = await Teacher.add('u2');
-//     const student = await Student.add('u1', teacher.teacherID, '3');
+describe('toggleSubmit', function () {
+  test('works', async function () {
+    const teacher = await Teacher.add('u2');
+    const student = await Student.add('u1', teacher.teacherID, '3');
 
-//     const data = {
-//       title: 'Test Assignment 1',
-//       subjectCode: 'MATH1',
-//       instructions: 'Complete workbook pages and then wait for teacher.',
-//       studentID: student.studentID,
-//       teacherID: teacher.teacherID,
-//       dateDue: '08/23/2022',
-//     };
-//     const assignment = await Assignment.create(data);
-//     // test submission
-//     const subResp = await Assignment.toggleSubmit(assignment.id);
-//     expect(subResp).toEqual({ id: assignment.id, isSubmitted: true });
-//     // test unsubmission
-//     const unSubResp = await Assignment.toggleSubmit(assignment.id);
-//     expect(unSubResp).toEqual({ id: assignment.id, isSubmitted: false });
-//   });
+    const assignment = await Assignment.create({
+      title: 'Test Assignment 1',
+      subjectCode: 'MATH1',
+      instructions: 'Complete workbook pages and then wait for teacher.',
+      teacherID: teacher.teacherID,
+    });
 
-//   test('notfounderror when invalid assignment id given', async function () {
-//     try {
-//       await Assignment.toggleSubmit(0);
-//       fail();
-//     } catch (err) {
-//       expect(err instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
-// });
+    const studentAssignment = await Assignment.assign({
+      assignmentID: assignment.id,
+      studentID: student.studentID,
+      dateDue: '08/20/2022',
+    });
+
+    // test submission
+    const subResp = await Assignment.toggleSubmit(studentAssignment.id);
+    expect(subResp).toEqual({ id: studentAssignment.id, isSubmitted: true });
+    // test unsubmission
+    const unSubResp = await Assignment.toggleSubmit(studentAssignment.id);
+    expect(unSubResp).toEqual({ id: studentAssignment.id, isSubmitted: false });
+  });
+
+  test('notfounderror when invalid assignment id given', async function () {
+    try {
+      await Assignment.toggleSubmit(0);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});

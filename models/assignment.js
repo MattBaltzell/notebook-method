@@ -45,7 +45,7 @@ class Assignment {
 
   /** Assign to student: Creates new studentAssignment */
 
-  static async assign(assignmentID, studentID, dateDue) {
+  static async assign({ assignmentID, studentID, dateDue }) {
     const studentRes = await db.query(`SELECT id FROM students WHERE id=$1`, [
       studentID,
     ]);
@@ -64,6 +64,7 @@ class Assignment {
           ) 
         VALUES ( $1, $2, $3, CURRENT_TIMESTAMP ) 
         RETURNING 
+          id,
           assignment_id AS "assignmentID",
           student_id AS "studentID",
           date_due AS "dateDue",
@@ -152,34 +153,34 @@ class Assignment {
    *
    */
 
-  static async toggleSubmit(assignmentID) {
+  static async toggleSubmit(id) {
     const submitQuery = ` 
-    UPDATE assignments
+    UPDATE students_assignments
     SET date_submitted=CURRENT_TIMESTAMP, is_submitted=true
     WHERE id=$1
     RETURNING id, is_submitted AS "isSubmitted"
     `;
 
     const unsubmitQuery = ` 
-    UPDATE assignments
+    UPDATE students_assignments
     SET date_submitted=null, is_submitted=false
     WHERE id=$1
     RETURNING id, is_submitted AS "isSubmitted"
     `;
 
     const isSubmittedRes = await db.query(
-      `SELECT is_submitted AS "isSubmitted" FROM assignments WHERE id=$1`,
-      [assignmentID]
+      `SELECT is_submitted AS "isSubmitted" FROM students_assignments WHERE id=$1`,
+      [id]
     );
 
     // check if valid assignmentID
-    if (!isSubmittedRes.rows[0]) {
-      throw new NotFoundError(`Assignment ${assignmentID} not found.`);
+    if (isSubmittedRes.rows.length === 0) {
+      throw new NotFoundError(`Student Assignment ${id} not found.`);
     }
 
     const { isSubmitted } = isSubmittedRes.rows[0];
     const result = await db.query(isSubmitted ? unsubmitQuery : submitQuery, [
-      assignmentID,
+      id,
     ]);
     const assignment = result.rows[0];
 
