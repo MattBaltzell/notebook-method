@@ -99,21 +99,17 @@ class Assignment {
       [assignmentID]
     );
 
-    const { isSubmitted } = isSubmittedRes.rows[0];
+    // check if valid assignmentID
+    if (!isSubmittedRes.rows[0]) {
+      throw new NotFoundError(`Assignment ${assignmentID} not found.`);
+    }
 
+    const { isSubmitted } = isSubmittedRes.rows[0];
     const result = await db.query(isSubmitted ? unsubmitQuery : submitQuery, [
       assignmentID,
     ]);
-
     const assignment = result.rows[0];
-    if (!assignment) {
-      throw new NotFoundError(`Assignment ${assignmentID} not found.`);
-    }
-    console.log('==================================================');
-    console.log('==================================================');
-    console.log(isSubmitted);
-    console.log('==================================================');
-    console.log('==================================================');
+
     return assignment;
   }
 }
