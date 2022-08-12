@@ -10,14 +10,42 @@ const {
 class Assignment {
   /** Create new assignment */
 
-  static async create({
-    title,
-    subjectCode,
-    instructions,
-    studentID,
-    teacherID,
-    dueDate,
-  }) {
+  static async create({ title, subjectCode, instructions, teacherID }) {
+    const teacherRes = await db.query(`SELECT id FROM teachers WHERE id=$1`, [
+      teacherID,
+    ]);
+    const teacher = teacherRes.rows[0];
+
+    if (!teacher) {
+      throw new NotFoundError(`No teacher with id: ${teacherID}`);
+    }
+
+    const result = await db.query(
+      `INSERT INTO assignments (
+        title,
+        subject_code,
+        instructions,
+        teacher_id
+        ) 
+      VALUES ( $1, $2, $3, $4 ) 
+      RETURNING 
+        id,
+        title,
+        subject_code AS "subjectCode",
+        instructions,
+        teacher_id AS "teacherID"
+        `,
+      [title, subjectCode, instructions, teacherID]
+    );
+
+    const assignment = result.rows[0];
+
+    return assignment;
+  }
+
+  /** Assign to student: Creates new studentAssignment */
+
+  static async assign(assignmentID, studentID, dateDue) {
     const studentRes = await db.query(`SELECT id FROM students WHERE id=$1`, [
       studentID,
     ]);
@@ -28,37 +56,82 @@ class Assignment {
     }
 
     const result = await db.query(
-      `INSERT INTO assignments (
-        title,
-        subject_code,
-        instructions,
-        assigned_to,
-        assigned_by,
-        date_assigned,
-        date_due
-        ) 
-      VALUES ( $1, $2, $3, $4, $5, CURRENT_TIMESTAMP, $6 ) 
-      RETURNING 
-        id,
-        title,
-        subject_code AS "subjectCode",
-        instructions,
-        assigned_to AS "assignedTo",
-        assigned_by AS "assignedBy",
-        date_assigned AS "dateAssigned",
-        date_due AS "dateDue"
-        `,
-      [title, subjectCode, instructions, studentID, teacherID, dueDate]
+      `INSERT INTO students_assignments (
+          assignment_id,
+          student_id,
+          date_due,
+          date_assigned
+          ) 
+        VALUES ( $1, $2, $3, CURRENT_TIMESTAMP ) 
+        RETURNING 
+          assignment_id AS "assignmentID",
+          student_id AS "studentID",
+          date_due AS "dateDue",
+          date_assigned AS "dateAssigned"
+          `,
+      [assignmentID, studentID, new Date(dateDue)]
     );
 
+    const studentAssignment = result.rows[0];
+
+    return studentAssignment;
+  }
+
+  /** Get all assignments for a given teacher
+   *
+   *
+   */
+  static async getAll(teacherID) {
+    const result = await db.query(
+      `SELECT * FROM assignments WHERE teacher_id=$1`,
+      [teacherID]
+    );
+    const assignments = result.rows;
+
+    return assignments;
+  }
+
+  /** Get all assignments for a given teacher
+   *
+   *
+   */
+  static async get(id) {
+    const result = await db.query(`SELECT * FROM assignments WHERE id=$1`, [
+      id,
+    ]);
     const assignment = result.rows[0];
 
     return assignment;
   }
 
+  /** Get studentAssignment based on id
+   *
+   *
+   */
+  static async getStudentAssignment(id) {
+    const result = await db.query(
+      `SELECT * FROM students_assignments WHERE id=$1`,
+      [id]
+    );
+    const studentAssignment = result.rows[0];
+
+    return studentAssignment;
+  }
+
+  /** Get all student_assignments
+   *
+   *
+   */
+  static async getAllStudentAssignments() {
+    const result = await db.query(`SELECT * FROM students_assignments`);
+    const studentAssignments = result.rows;
+
+    return studentAssignments;
+  }
+
   /** Edit assignment
    *
-   * Authorization: Teacher
+   *
    */
 
   //////////////////////////////////////////////////////////////
