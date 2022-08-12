@@ -28,7 +28,8 @@ CREATE TABLE users(
     last_name TEXT,
     avatar_url TEXT,
     join_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    last_login_at TIMESTAMP WITH TIME ZONE
+    last_login_at TIMESTAMP WITH TIME ZONE,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE teachers(

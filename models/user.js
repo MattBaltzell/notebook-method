@@ -27,7 +27,8 @@ class User {
               first_name AS "firstName",
               last_name AS "lastName",
               email,
-              user_type_id AS "userTypeID"
+              user_type_id AS "userTypeID",
+              is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
       [username]
@@ -53,7 +54,14 @@ class User {
    * Returns BadRequestError if duplicate is found.
    */
 
-  static async register({ username, email, password, firstName, lastName }) {
+  static async register({
+    username,
+    email,
+    password,
+    firstName,
+    lastName,
+    isAdmin,
+  }) {
     const duplicateCheck = await db.query(
       `SELECT username
          FROM users
@@ -75,10 +83,11 @@ class User {
       password,
       first_name,
       last_name,
+      is_admin,
       join_at ) 
-      VALUES ($1, 1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
-      RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName"`,
-      [username, email, hashedPassword, firstName, lastName]
+      VALUES ($1, 1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP) 
+      RETURNING id, username, email, first_name AS "firstName", last_name AS "lastName",is_admin AS "isAdmin"`,
+      [username, email, hashedPassword, firstName, lastName, isAdmin]
     );
 
     const user = result.rows[0];
@@ -141,7 +150,8 @@ class User {
           user_type_id AS "userTypeID",
           avatar_url AS "avatarURL",
           join_at AS "joinAt",
-          last_login_at AS "lastLoginAt"
+          last_login_at AS "lastLoginAt",
+          is_admin AS "isAdmin"
         FROM users
         ORDER BY id`
     );
@@ -167,7 +177,8 @@ class User {
         user_type_id AS "userTypeID",
         avatar_url AS "avatarURL",
         join_at AS "joinAt",
-        last_login_at AS "lastLoginAt"
+        last_login_at AS "lastLoginAt",
+        is_admin AS "isAdmin"
       FROM users
       WHERE username=$1`,
       [username]
@@ -205,6 +216,7 @@ class User {
       firstName: 'first_name',
       lastName: 'last_name',
       avatarURL: 'avatar_url',
+      isAdmin: 'is_admin',
     });
     const usernameVarIdx = '$' + (values.length + 1);
 
@@ -215,7 +227,8 @@ class User {
                               first_name AS "firstName",
                               last_name AS "lastName",
                               email,
-                              avatar_url AS "avatarURL"`;
+                              avatar_url AS "avatarURL",
+                              isAdmin AS "is_admin"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
 
