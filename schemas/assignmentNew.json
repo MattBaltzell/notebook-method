@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/assignmentNew.json",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "subjectCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10
+    },
+    "instructions": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 280
+    },
+    "teacherID": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": false,
+  "required": ["title", "studentID", "teacherID"]
+}

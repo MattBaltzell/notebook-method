@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/assignmentNew.json",
+  "type": "object",
+  "properties": {
+    "assignmentID": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "studentID": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "dateDue": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["assignmentID", "studentID", "dateDue"]
+}
