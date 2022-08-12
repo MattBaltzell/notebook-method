@@ -42,8 +42,108 @@ describe('create', function () {
   });
 });
 
+/************************************** getAll(teacherID) */
+
+describe('getAll', function () {
+  test('works', async function () {
+    const teacher = await Teacher.add('u2');
+
+    const assignment1 = await Assignment.create({
+      title: 'Test1',
+      subjectCode: 'MATH1',
+      instructions: 'Testing1',
+      teacherID: teacher.teacherID,
+    });
+    const assignment2 = await Assignment.create({
+      title: 'Test2',
+      subjectCode: 'LANG1',
+      instructions: 'Testing2',
+      teacherID: teacher.teacherID,
+    });
+
+    const assignments = await Assignment.getAll(teacher.teacherID);
+    expect(assignments).toEqual([
+      {
+        id: expect.any(Number),
+        instructions: 'Testing1',
+        subjectCode: 'MATH1',
+        teacherID: teacher.teacherID,
+        title: 'Test1',
+      },
+      {
+        id: expect.any(Number),
+        instructions: 'Testing2',
+        subjectCode: 'LANG1',
+        title: 'Test2',
+        teacherID: teacher.teacherID,
+      },
+    ]);
+  });
+});
+
+/************************************** get(id) */
+
+describe('get', function () {
+  test('works', async function () {
+    const teacher = await Teacher.add('u2');
+
+    const assignment1 = await Assignment.create({
+      title: 'Test1',
+      subjectCode: 'MATH1',
+      instructions: 'Testing1',
+      teacherID: teacher.teacherID,
+    });
+    const assignment2 = await Assignment.create({
+      title: 'Test2',
+      subjectCode: 'LANG1',
+      instructions: 'Testing2',
+      teacherID: teacher.teacherID,
+    });
+
+    const assignment = await Assignment.get(assignment2.id);
+    expect(assignment).toEqual({
+      id: assignment2.id,
+      instructions: 'Testing2',
+      subjectCode: 'LANG1',
+      title: 'Test2',
+      teacherID: teacher.teacherID,
+    });
+  });
+});
+
+/****************************] getAllStudentAssignments() */
+
+describe('getAllStudentAssignments', function () {
+  test('works', async function () {
+    const teacher = await Teacher.add('u2');
+    const student1 = await Student.add('u1', teacher.teacherID, '6');
+    const student2 = await Student.add('u3', teacher.teacherID, '6');
+
+    const assignment1 = await Assignment.create({
+      title: 'Test1',
+      subjectCode: 'MATH1',
+      instructions: 'Testing1',
+      teacherID: teacher.teacherID,
+    });
+
+    await Assignment.assign({
+      assignmentID: assignment1.id,
+      studentID: student1.studentID,
+      dateDue: '08/20/2022',
+    });
+    await Assignment.assign({
+      assignmentID: assignment1.id,
+      studentID: student2.studentID,
+      dateDue: '08/20/2022',
+    });
+
+    const studentAssignments = await Assignment.getAllStudentAssignments();
+    expect(studentAssignments).toEqual({});
+    // need to fill out the above expect statement to pass test
+  });
+});
+
 /************************************** toggleSubmit() */
-// Need to update toggleSubmit method to make these tests run properly
 
 describe('toggleSubmit', function () {
   test('works', async function () {

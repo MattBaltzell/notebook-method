@@ -84,7 +84,14 @@ class Assignment {
    */
   static async getAll(teacherID) {
     const result = await db.query(
-      `SELECT * FROM assignments WHERE teacher_id=$1`,
+      `SELECT 
+        id, 
+        title,  
+        instructions, 
+        teacher_id AS "teacherID", 
+        subject_code AS "subjectCode" 
+      FROM assignments 
+      WHERE teacher_id=$1`,
       [teacherID]
     );
     const assignments = result.rows;
@@ -92,17 +99,48 @@ class Assignment {
     return assignments;
   }
 
-  /** Get all assignments for a given teacher
+  /** Get assignments by id
    *
    *
    */
   static async get(id) {
-    const result = await db.query(`SELECT * FROM assignments WHERE id=$1`, [
-      id,
-    ]);
+    const result = await db.query(
+      `SELECT 
+        id, 
+        title,  
+        instructions, 
+        teacher_id AS "teacherID", 
+        subject_code AS "subjectCode" 
+      FROM assignments 
+      WHERE id=$1`,
+      [id]
+    );
     const assignment = result.rows[0];
 
     return assignment;
+  }
+
+  /** Get all student_assignments
+   *
+   *
+   */
+  static async getAllStudentAssignments() {
+    const result = await db.query(
+      `SELECT 
+        id,
+        assignment_id AS "assignmentID",
+        student_id AS "studentID",
+        date_assigned AS "dateAssigned",
+        date_due AS "dateDue",
+        date_submitted AS "dateSubmitted",
+        date_approved AS "dateApproved",
+        is_submitted AS "isSubmitted",
+        is_approved AS "isApproved"
+      FROM students_assignments`
+    );
+    const studentAssignments = result.rows;
+
+    return studentAssignments;
   }
 
   /** Get studentAssignment based on id
@@ -117,17 +155,6 @@ class Assignment {
     const studentAssignment = result.rows[0];
 
     return studentAssignment;
-  }
-
-  /** Get all student_assignments
-   *
-   *
-   */
-  static async getAllStudentAssignments() {
-    const result = await db.query(`SELECT * FROM students_assignments`);
-    const studentAssignments = result.rows;
-
-    return studentAssignments;
   }
 
   /** Edit assignment
