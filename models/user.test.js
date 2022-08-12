@@ -30,6 +30,7 @@ describe('authenticate', function () {
       lastName: 'U1L',
       email: 'u1@email.com',
       userTypeID: 1,
+      isAdmin: false,
     });
   });
 
@@ -60,6 +61,7 @@ describe('register', function () {
     email: 'test@test.com',
     firstName: 'Test',
     lastName: 'Tester',
+    isAdmin: false,
   };
 
   test('works', async function () {
@@ -101,6 +103,7 @@ describe('updateLoginTimestamp', function () {
     email: 'test@test.com',
     firstName: 'Test',
     lastName: 'Tester',
+    isAdmin: false,
   };
   test('works', async function () {
     let user = await User.register({
@@ -127,6 +130,7 @@ describe('updateUserType', function () {
     email: 'test@test.com',
     firstName: 'Test',
     lastName: 'Tester',
+    isAdmin: false,
   };
   test('works', async function () {
     let user = await User.register({
@@ -160,6 +164,7 @@ describe('getAll', function () {
         userTypeID: 1,
         joinAt: expect.any(Date),
         lastLoginAt: null,
+        isAdmin: false,
       },
       {
         id: expect.any(Number),
@@ -171,6 +176,7 @@ describe('getAll', function () {
         userTypeID: 1,
         joinAt: expect.any(Date),
         lastLoginAt: null,
+        isAdmin: false,
       },
       {
         id: expect.any(Number),
@@ -182,6 +188,7 @@ describe('getAll', function () {
         userTypeID: 1,
         joinAt: expect.any(Date),
         lastLoginAt: null,
+        isAdmin: false,
       },
     ]);
   });
@@ -202,6 +209,7 @@ describe('get', function () {
       userTypeID: 1,
       joinAt: expect.any(Date),
       lastLoginAt: null,
+      isAdmin: false,
     });
   });
 

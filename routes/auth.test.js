@@ -71,6 +71,7 @@ describe('POST /auth/register', function () {
       lastName: 'last',
       password: 'password',
       email: 'new@email.com',
+      isAdmin: false,
     });
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({

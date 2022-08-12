@@ -34,6 +34,7 @@ describe('GET /users', function () {
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
+          isAdmin: false,
         },
         {
           id: expect.any(Number),
@@ -45,6 +46,7 @@ describe('GET /users', function () {
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
+          isAdmin: false,
         },
         {
           id: expect.any(Number),
@@ -56,6 +58,7 @@ describe('GET /users', function () {
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
+          isAdmin: false,
         },
         {
           id: expect.any(Number),
@@ -67,6 +70,7 @@ describe('GET /users', function () {
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
+          isAdmin: false,
         },
       ],
     });
@@ -89,6 +93,7 @@ describe('GET /users/:username', function () {
         avatarURL: null,
         joinAt: expect.any(String),
         lastLoginAt: null,
+        isAdmin: false,
       },
     });
   });
@@ -96,7 +101,7 @@ describe('GET /users/:username', function () {
 
 /************************************** PATCH /users/:username */
 
-describe('GET /users/:username', function () {
+describe('PATCH /users/:username', function () {
   test('works', async function () {
     const resp = await request(app)
       .patch('/users/u1')
@@ -114,6 +119,7 @@ describe('GET /users/:username', function () {
         firstName: 'User1',
         lastName: 'User1Lastname',
         avatarURL: 'https://thisisatestlink.com/images',
+        isAdmin: false,
       },
     });
   });
@@ -130,6 +136,7 @@ describe('GET /users/:username', function () {
         firstName: 'U1F',
         lastName: 'U1L',
         avatarURL: 'https://thisisatestlink.com/img',
+        isAdmin: false,
       },
     });
   });
@@ -143,7 +150,7 @@ describe('GET /users/:username', function () {
   });
 });
 
-/************************************** PATCH /users/:username */
+/************************************** DELETE /users/:username */
 
 describe('DELETE /users/:username', function () {
   test('works', async function () {

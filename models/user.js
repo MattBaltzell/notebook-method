@@ -216,7 +216,6 @@ class User {
       firstName: 'first_name',
       lastName: 'last_name',
       avatarURL: 'avatar_url',
-      isAdmin: 'is_admin',
     });
     const usernameVarIdx = '$' + (values.length + 1);
 
@@ -228,7 +227,7 @@ class User {
                               last_name AS "lastName",
                               email,
                               avatar_url AS "avatarURL",
-                              isAdmin AS "is_admin"`;
+                              is_admin AS "isAdmin"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
 
