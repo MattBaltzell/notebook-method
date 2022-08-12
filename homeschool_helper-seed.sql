@@ -25,4 +25,5 @@ INSERT INTO subjects (code, grade, title, description)
             ('BIBLE3', '3', 'Bible 3','3rd Grade Bible Studies'),            
             ('FORLANG3', '3', 'Foreign Language 3','3rd Grade Foreign Language'),
 
-            ('ELECTIVE', 'all', 'Free Elective','Free Elective for Any Grades');
+            ('ELECTIVE', 'all', 'Elective','Unclassified Elective for Any Grade Level'),
+            ('OTHER', 'all', 'Not School-Related','Activities Not Related to School Work');

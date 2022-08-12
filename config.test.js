@@ -18,9 +18,9 @@ describe('config can come from env', function () {
     delete process.env.BCRYPT_WORK_FACTOR;
     delete process.env.DATABASE_URL;
 
-    expect(config.getDatabaseUri()).toEqual('homeschool-helper');
+    expect(config.getDatabaseUri()).toEqual('homeschool_helper');
     process.env.NODE_ENV = 'test';
 
-    expect(config.getDatabaseUri()).toEqual('homeschool-helper_test');
+    expect(config.getDatabaseUri()).toEqual('homeschool_helper_test');
   });
 });

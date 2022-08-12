@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS teachers_students;
 DROP TABLE IF EXISTS assignments_textbooks;
 DROP TABLE IF EXISTS students_textbooks;
 DROP TABLE IF EXISTS textbooks;
+DROP TABLE IF EXISTS students_assignments;
 DROP TABLE IF EXISTS assignments;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS students;
@@ -60,16 +61,22 @@ CREATE TABLE assignments (
     subject_code VARCHAR(10) 
         REFERENCES subjects,
     instructions TEXT,
-    assigned_to INTEGER NOT NULL 
+    teacher_id INTEGER NOT NULL 
+        REFERENCES teachers ON DELETE CASCADE
+);
+
+CREATE TABLE students_assignments (
+    assignment_id INTEGER NOT NULL 
+        REFERENCES assignments ON DELETE CASCADE,
+    student_id INTEGER NOT NULL 
         REFERENCES students ON DELETE CASCADE,
-    assigned_by INTEGER NOT NULL 
-        REFERENCES teachers ON DELETE CASCADE,
     date_assigned TIMESTAMP WITH TIME ZONE NOT NULL,
     date_due TIMESTAMP WITH TIME ZONE,
     date_submitted TIMESTAMP WITH TIME ZONE,
     date_approved TIMESTAMP WITH TIME ZONE,
     is_submitted BOOLEAN DEFAULT false,
-    is_approved BOOLEAN DEFAULT false
+    is_approved BOOLEAN DEFAULT false,
+    PRIMARY KEY(assignment_id,student_id)
 );
 
 CREATE TABLE textbooks(
