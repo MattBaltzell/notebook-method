@@ -66,6 +66,7 @@ CREATE TABLE assignments (
 );
 
 CREATE TABLE students_assignments (
+    id SERIAL PRIMARY KEY,
     assignment_id INTEGER NOT NULL 
         REFERENCES assignments ON DELETE CASCADE,
     student_id INTEGER NOT NULL 
@@ -75,8 +76,7 @@ CREATE TABLE students_assignments (
     date_submitted TIMESTAMP WITH TIME ZONE,
     date_approved TIMESTAMP WITH TIME ZONE,
     is_submitted BOOLEAN DEFAULT false,
-    is_approved BOOLEAN DEFAULT false,
-    PRIMARY KEY(assignment_id,student_id)
+    is_approved BOOLEAN DEFAULT false
 );
 
 CREATE TABLE textbooks(
