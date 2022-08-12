@@ -12,6 +12,8 @@ const authRoutes = require('./routes/auth');
 const teacherRoutes = require('./routes/teachers');
 const studentRoutes = require('./routes/students');
 const userRoutes = require('./routes/users');
+const assignmentRoutes = require('./routes/assignments');
+const studentAssignmentRoutes = require('./routes/studentAssignments');
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use('/auth', authRoutes);
 app.use('/teachers', teacherRoutes);
 app.use('/students', studentRoutes);
 app.use('/users', userRoutes);
+app.use('/assignments', assignmentRoutes);
+app.use('/studentassignments', studentAssignmentRoutes);
 
 /** Handle 404 errors */
 app.use(function (req, res, next) {
