@@ -1,5 +1,5 @@
 -- base users
-INSERT INTO users (username, email, password, first_name, last_name, avatar_url, join_at, user_type_id) 
+INSERT INTO users (username, email, password, first_name, last_name, avatar_url, join_at, user_type_id, is_admin) 
     VALUES  (
         'mattb', 
         'mattb@gmail.com', 
@@ -8,7 +8,8 @@ INSERT INTO users (username, email, password, first_name, last_name, avatar_url,
         'Baltzell', 
         '', 
         CURRENT_TIMESTAMP, 
-        2),
+        2,
+        false),
         (
         'ardenb', 
         'ardenb@gmail.com', 
@@ -17,7 +18,8 @@ INSERT INTO users (username, email, password, first_name, last_name, avatar_url,
         'Baltzell', 
         '', 
         CURRENT_TIMESTAMP, 
-        2),
+        2,
+        false),
         (
         'cambrieb', 
         'cambrieb@gmail.com', 
@@ -26,7 +28,8 @@ INSERT INTO users (username, email, password, first_name, last_name, avatar_url,
         'Baltzell', 
         '', 
         CURRENT_TIMESTAMP, 
-        3),
+        3,
+        false),
         (
         'drewb', 
         'drewb@gmail.com', 
@@ -35,7 +38,8 @@ INSERT INTO users (username, email, password, first_name, last_name, avatar_url,
         'Baltzell', 
         '', 
         CURRENT_TIMESTAMP, 
-        3),
+        3,
+        false),
         (
         'shilohb', 
         'shilohb@gmail.com', 
@@ -44,7 +48,17 @@ INSERT INTO users (username, email, password, first_name, last_name, avatar_url,
         'Baltzell', 
         '', 
         CURRENT_TIMESTAMP, 
-        3);
+        3,
+        false),
+        ('admin', 
+        'admin@gmail.com', 
+        '$2b$12$2lvTCDkGBNjJztPS59EVReDtuYujhpPW71SJImygh/DRQuG7ZnlcC',
+        'Admin',
+        '1', 
+        '', 
+        CURRENT_TIMESTAMP, 
+        2,
+        true);
 
 
 -- base teachers

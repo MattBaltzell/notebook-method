@@ -7,6 +7,7 @@ CREATE DATABASE homeschool-helper;
 
 \i homeschool-helper-schema.sql
 \i homeschool-helper-seed.sql
+\i seed-dev.sql
 
 \echo 'Delete and recreate homeschool-helper_test db?'
 \prompt 'Return for yes or control-C to cancel > ' foo
