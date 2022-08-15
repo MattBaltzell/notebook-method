@@ -111,28 +111,18 @@ class Teacher {
    */
 
   static async delete(username) {
-    const userRes = await db.query(
-      `SELECT id 
-        FROM users 
-        WHERE username=$1
+    const teacherRes = await db.query(
+      `DELETE FROM teachers
+      WHERE user_id IN (SELECT id FROM users WHERE username=$1)
+      RETURNING user_id AS "userID"
       `,
       [username]
     );
-    const user = userRes.rows[0];
-
-    if (!user) {
-      throw new NotFoundError(`No user: ${username}`);
-    }
-
-    const teacherRes = await db.query(
-      `DELETE
-        FROM teachers
-        WHERE user_id=$1
-        RETURNING user_id AS "userID"
-      `,
-      [user.id]
-    );
     const teacher = teacherRes.rows[0];
+
+    if (!teacher) {
+      throw new NotFoundError(`No teacher: ${username}`);
+    }
 
     User.updateUserType(username, 1);
 
