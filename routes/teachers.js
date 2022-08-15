@@ -4,6 +4,7 @@ const router = new express.Router();
 const Teacher = require('../models/teacher');
 const User = require('../models/user');
 const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
+const { NotFoundError } = require('../expressError');
 
 /** Get list of all teachers. */
 
@@ -44,12 +45,11 @@ router.post('/', async (req, res, next) => {
 
 router.delete('/:username', async (req, res, next) => {
   try {
-    const teacher = await Teacher.get(req.params.username);
-    const result = await Teacher.delete(teacher.teacherID);
-    if (!result.id) {
-      throw new ExpressError(`Teacher with id of ${id} cannot be found.`, 400);
+    const result = await Teacher.delete(req.params.username);
+    if (!result.userID) {
+      throw new NotFoundError(`No teacher: ${req.params.username}.`);
     }
-    await User.updateUserType(1, teacher.userID);
+
     return res.send({ message: 'Deleted.' });
   } catch (err) {
     return next(err);
