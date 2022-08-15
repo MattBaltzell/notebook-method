@@ -82,7 +82,7 @@ class Assignment {
    *
    *
    */
-  static async getAll(teacherID) {
+  static async getAll(username) {
     const result = await db.query(
       `SELECT 
         id, 
@@ -90,9 +90,13 @@ class Assignment {
         instructions, 
         teacher_id AS "teacherID", 
         subject_code AS "subjectCode" 
-      FROM assignments 
-      WHERE teacher_id=$1`,
-      [teacherID]
+      FROM assignments
+      WHERE teacher_id = 
+      (SELECT t.id FROM teachers AS t
+        JOIN users AS u
+        ON t.user_id = u.id
+        WHERE u.username ILIKE $1)`,
+      [username]
     );
     const assignments = result.rows;
 

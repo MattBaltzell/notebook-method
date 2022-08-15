@@ -3,16 +3,17 @@ const express = require('express');
 const router = new express.Router();
 const Teacher = require('../models/teacher');
 const Assignment = require('../models/assignment');
-const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
+const {
+  ensureLoggedIn,
+  ensureCorrectUser,
+  ensureTeacher,
+} = require('../middleware/auth');
 
 /** Get list of all assignments for a teacher. */
 
-router.get('/', async (req, res, next) => {
+router.get('/teacher/:username', ensureCorrectUser, async (req, res, next) => {
   try {
-    // Start: this will need to change to use ensureTeacher Middleware
-    const { teacherID } = req.body;
-    // End
-    const assignments = await Assignment.getAll(teacherID);
+    const assignments = await Assignment.getAll(req.params.username);
     return res.send({ assignments });
   } catch (err) {
     return next(err);
