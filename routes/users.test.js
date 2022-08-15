@@ -10,12 +10,44 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  a1Token,
 } = require('./_testCommon');
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
+
+/************************************** POST /users */
+
+describe('POST /users', function () {
+  test('works: admin can create new admin', async function () {
+    const newUser = {
+      username: 'newAdminUser',
+      email: 'newadminuser@email.com',
+      password: 'password',
+      firstName: 'New',
+      lastName: 'Admin',
+      isAdmin: true,
+    };
+    const resp = await request(app)
+      .post('/users')
+      .send(newUser)
+      .set('authorization', `Bearer ${a1Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      user: {
+        id: expect.any(Number),
+        username: 'newAdminUser',
+        email: 'newadminuser@email.com',
+        firstName: 'New',
+        lastName: 'Admin',
+        isAdmin: true,
+      },
+      token: expect.any(String),
+    });
+  });
+});
 
 /************************************** GET /users */
 
