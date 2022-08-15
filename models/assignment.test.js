@@ -46,7 +46,8 @@ describe('create', function () {
 
 describe('getAll', function () {
   test('works', async function () {
-    const teacher = await Teacher.add('u2');
+    await Teacher.add('u2');
+    const teacher = await Teacher.get('u2');
 
     const assignment1 = await Assignment.create({
       title: 'Test1',
@@ -61,7 +62,8 @@ describe('getAll', function () {
       teacherID: teacher.teacherID,
     });
 
-    const assignments = await Assignment.getAll(teacher.teacherID);
+    const assignments = await Assignment.getAll(teacher.username);
+
     expect(assignments).toEqual([
       {
         id: expect.any(Number),
