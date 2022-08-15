@@ -49,7 +49,7 @@ class User {
 
   /** Register user with data
    *
-   * Returns {id, username, email, firstName, lastName}
+   * Returns {id, username, email, firstName, lastName, isAdmin}
    *
    * Returns BadRequestError if duplicate is found.
    */
