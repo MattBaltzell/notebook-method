@@ -111,7 +111,7 @@ describe('get', function () {
   });
 });
 
-/****************************] getAllStudentAssignments() */
+/***************************** getAllStudentAssignments() */
 
 describe('getAllStudentAssignments', function () {
   test('works', async function () {
@@ -134,12 +134,34 @@ describe('getAllStudentAssignments', function () {
     await Assignment.assign({
       assignmentID: assignment1.id,
       studentID: student2.studentID,
-      dateDue: '08/20/2022',
+      dateDue: '08/22/2022',
     });
 
     const studentAssignments = await Assignment.getAllStudentAssignments();
-    expect(studentAssignments).toEqual({});
-    // need to fill out the above expect statement to pass test
+    expect(studentAssignments).toEqual([
+      {
+        id: expect.any(Number),
+        assignmentID: expect.any(Number),
+        studentID: expect.any(Number),
+        dateAssigned: expect.any(Date),
+        dateDue: expect.any(Date),
+        dateSubmitted: null,
+        dateApproved: null,
+        isSubmitted: false,
+        isApproved: false,
+      },
+      {
+        id: expect.any(Number),
+        assignmentID: expect.any(Number),
+        studentID: expect.any(Number),
+        dateAssigned: expect.any(Date),
+        dateDue: expect.any(Date),
+        dateSubmitted: null,
+        dateApproved: null,
+        isSubmitted: false,
+        isApproved: false,
+      },
+    ]);
   });
 });
 
