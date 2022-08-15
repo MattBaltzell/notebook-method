@@ -57,9 +57,15 @@ router.get('/', async function (req, res, next) {
   }
 });
 
-/** Get student by username */
+/** Get user by username */
+/** GET /[username] { user } => { user }
+ *
+ * Returns { id, username, email, firstName, lastName, userTypeID, avatarURL,joinAt, lastLoginAt, isAdmin }
+ *
+ * Authorization required: login
+ **/
 
-router.get('/:username', async (req, res, next) => {
+router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   const username = req.params.username;
   try {
     const user = await User.get(username);
@@ -97,7 +103,7 @@ router.patch('/:username', ensureCorrectUser, async function (req, res, next) {
 /** Delete a user */
 // Will need to add Auth middlewhere to ensure ADMIN ONLY access
 
-router.delete('/:username', async (req, res, next) => {
+router.delete('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const result = await User.delete(req.params.username);
     if (!result.username) {
