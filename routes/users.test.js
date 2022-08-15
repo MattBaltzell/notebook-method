@@ -86,7 +86,7 @@ describe('GET /users', function () {
           email: 'user3@user.com',
           firstName: 'U3F',
           lastName: 'U3L',
-          userTypeID: 1,
+          userTypeID: 2,
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
@@ -98,11 +98,47 @@ describe('GET /users', function () {
           email: 'user4@user.com',
           firstName: 'U4F',
           lastName: 'U4L',
-          userTypeID: 1,
+          userTypeID: 2,
           avatarURL: null,
           joinAt: expect.any(String),
           lastLoginAt: null,
           isAdmin: false,
+        },
+        {
+          id: expect.any(Number),
+          username: 'u5',
+          email: 'user5@user.com',
+          firstName: 'U5F',
+          lastName: 'U5L',
+          userTypeID: 3,
+          avatarURL: null,
+          joinAt: expect.any(String),
+          lastLoginAt: null,
+          isAdmin: false,
+        },
+        {
+          id: expect.any(Number),
+          username: 'u6',
+          email: 'user6@user.com',
+          firstName: 'U6F',
+          lastName: 'U6L',
+          userTypeID: 3,
+          avatarURL: null,
+          joinAt: expect.any(String),
+          lastLoginAt: null,
+          isAdmin: false,
+        },
+        {
+          id: expect.any(Number),
+          username: 'a1',
+          email: 'admin1@user.com',
+          firstName: 'A1F',
+          lastName: 'A1L',
+          userTypeID: 1,
+          avatarURL: null,
+          joinAt: expect.any(String),
+          lastLoginAt: null,
+          isAdmin: true,
         },
       ],
     });
@@ -113,7 +149,9 @@ describe('GET /users', function () {
 
 describe('GET /users/:username', function () {
   test('works', async function () {
-    const resp = await request(app).get('/users/u1');
+    const resp = await request(app)
+      .get('/users/u1')
+      .set('authorization', `Bearer ${u1Token}`);
     expect(resp.body).toEqual({
       user: {
         id: expect.any(Number),
