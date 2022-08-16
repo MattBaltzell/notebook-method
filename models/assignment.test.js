@@ -3,6 +3,7 @@
 const { NotFoundError } = require('../expressError');
 const db = require('../db.js');
 const Assignment = require('./assignment.js');
+const StudentAssignment = require('./studentAssignment.js');
 const Teacher = require('./teacher.js');
 const Student = require('./student.js');
 
@@ -128,36 +129,25 @@ describe('getAllStudentAssignments', function () {
       teacherID: teacher.teacherID,
     });
 
-    await Assignment.assign({
+    await StudentAssignment.assign({
       assignmentID: assignment1.id,
       studentID: student1.studentID,
       dateDue: '08/20/2022',
     });
-    await Assignment.assign({
+    await StudentAssignment.assign({
       assignmentID: assignment1.id,
       studentID: student2.studentID,
       dateDue: '08/22/2022',
     });
 
-    const studentAssignments = await Assignment.getAllStudentAssignments();
+    const studentAssignments = await StudentAssignment.getAll('u1');
     expect(studentAssignments).toEqual([
       {
         id: expect.any(Number),
         assignmentID: expect.any(Number),
-        studentID: expect.any(Number),
+        studentID: student1.studentID,
         dateAssigned: expect.any(Date),
-        dateDue: expect.any(Date),
-        dateSubmitted: null,
-        dateApproved: null,
-        isSubmitted: false,
-        isApproved: false,
-      },
-      {
-        id: expect.any(Number),
-        assignmentID: expect.any(Number),
-        studentID: expect.any(Number),
-        dateAssigned: expect.any(Date),
-        dateDue: expect.any(Date),
+        dateDue: new Date('08/20/2022'),
         dateSubmitted: null,
         dateApproved: null,
         isSubmitted: false,
@@ -181,23 +171,25 @@ describe('toggleSubmit', function () {
       teacherID: teacher.teacherID,
     });
 
-    const studentAssignment = await Assignment.assign({
+    const studentAssignment = await StudentAssignment.assign({
       assignmentID: assignment.id,
       studentID: student.studentID,
       dateDue: '08/20/2022',
     });
 
     // test submission
-    const subResp = await Assignment.toggleSubmit(studentAssignment.id);
+    const subResp = await StudentAssignment.toggleSubmit(studentAssignment.id);
     expect(subResp).toEqual({ id: studentAssignment.id, isSubmitted: true });
     // test unsubmission
-    const unSubResp = await Assignment.toggleSubmit(studentAssignment.id);
+    const unSubResp = await StudentAssignment.toggleSubmit(
+      studentAssignment.id
+    );
     expect(unSubResp).toEqual({ id: studentAssignment.id, isSubmitted: false });
   });
 
   test('notfounderror when invalid assignment id given', async function () {
     try {
-      await Assignment.toggleSubmit(0);
+      await StudentAssignment.toggleSubmit(0);
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

@@ -19,13 +19,12 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-/************************************** GET /assignments/teacher:username */
-// .set('authorization', `Bearer ${t1Token}`);
+/************************************** GET /assignments/teacher/:username */
 
 describe('GET /assignments/teacher/:username', function () {
   test('works', async function () {
     const resp = await request(app)
-      .get('/assignments/teacher/u3')
+      .get('/assignments/u3')
       .set('authorization', `Bearer ${t1Token}`);
     expect(resp.body).toEqual({
       assignments: [

@@ -4,6 +4,7 @@ const db = require('../db.js');
 const User = require('../models/user');
 const Teacher = require('../models/teacher');
 const Student = require('../models/student');
+const StudentAssignment = require('../models/studentAssignment');
 const Assignment = require('../models/assignment');
 const { createToken } = require('../helpers/tokens');
 
@@ -104,17 +105,17 @@ async function commonBeforeAll() {
     teacherID: teacher2.teacherID,
   });
 
-  const studentAssignment1 = await Assignment.assign({
+  const studentAssignment1 = await StudentAssignment.assign({
     assignmentID: assignment1.id,
     studentID: student1.studentID,
     dateDue: '10/01/2022',
   });
-  const studentAssignment2 = await Assignment.assign({
+  const studentAssignment2 = await StudentAssignment.assign({
     assignmentID: assignment2.id,
     studentID: student1.studentID,
     dateDue: '10/02/2022',
   });
-  const studentAssignment3 = await Assignment.assign({
+  const studentAssignment3 = await StudentAssignment.assign({
     assignmentID: assignment3.id,
     studentID: student2.studentID,
     dateDue: '10/03/2022',

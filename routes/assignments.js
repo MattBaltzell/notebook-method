@@ -8,10 +8,11 @@ const {
   ensureCorrectUser,
   ensureTeacher,
 } = require('../middleware/auth');
+const StudentAssignment = require('../models/studentAssignment');
 
 /** Get list of all assignments for a teacher. */
 
-router.get('/teacher/:username', ensureCorrectUser, async (req, res, next) => {
+router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const assignments = await Assignment.getAll(req.params.username);
     return res.send({ assignments });
@@ -22,9 +23,13 @@ router.get('/teacher/:username', ensureCorrectUser, async (req, res, next) => {
 
 /** Get assignment by id */
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:username/:id', ensureCorrectUser, async (req, res, next) => {
   try {
     const assignment = await Assignment.get(req.params.id);
+    const studentAssignments = await Assignment.getStudentAssignments(
+      req.params.id
+    );
+    assignment.studentAssignments = studentAssignments;
     return res.send({ assignment });
   } catch (err) {
     return next(err);
@@ -33,7 +38,7 @@ router.get('/:id', async (req, res, next) => {
 
 /** Create Assignment */
 
-router.post('/', async (req, res, next) => {
+router.post('/', ensureTeacher, async (req, res, next) => {
   try {
     const { title, subjectCode, instructions, teacherID } = req.body;
     const assignment = await Assignment.create({
