@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
 const { UnauthorizedError } = require('../expressError');
 const User = require('../models/user');
+const Teacher = require('../models/teacher');
+const Student = require('../models/student');
 
 /** Middleware: Authenticate user.
  *
