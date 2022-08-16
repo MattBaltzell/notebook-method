@@ -63,13 +63,46 @@ function ensureAdmin(req, res, next) {
 
 function ensureCorrectUser(req, res, next) {
   try {
-    if (!res.locals.user) throw new UnauthorizedError();
+    if (!res.locals.user) throw new UnauthorizedError('Not logged In');
     if (
       res.locals.user.username !== req.params.username &&
       res.locals.user.isAdmin === false
     ) {
       throw new UnauthorizedError();
     }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+/** Middleware: Requires correct username or teacher of user with correct username
+ *
+ * If not, raises Unauthorized.
+ */
+
+async function ensureCorrectUserOrTeacher(req, res, next) {
+  try {
+    if (!res.locals.user) throw new UnauthorizedError();
+    let teacher;
+    let student;
+
+    const user = await User.get(req.params.username);
+
+    if (res.locals.user.userTypeID === 2) {
+      teacher = await Teacher.get(res.locals.user.username);
+    }
+    if (user.userTypeID === 3) {
+      student = await Student.get(req.params.username);
+    }
+    if (
+      res.locals.user.username !== req.params.username &&
+      res.locals.user.isAdmin === false &&
+      teacher.teacherID !== student.teacherID
+    ) {
+      throw new UnauthorizedError();
+    }
+
     return next();
   } catch (err) {
     return next(err);
@@ -97,5 +130,6 @@ module.exports = {
   ensureLoggedIn,
   ensureAdmin,
   ensureCorrectUser,
+  ensureCorrectUserOrTeacher,
   ensureTeacher,
 };
