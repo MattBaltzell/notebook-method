@@ -6,11 +6,12 @@ const {
   ensureLoggedIn,
   ensureTeacher,
   ensureCorrectUser,
+  ensureCorrectUserOrTeacher,
 } = require('../middleware/auth');
 
 /** Get list of all assignments for a student */
 
-router.get('/:username', ensureCorrectUser, async (req, res, next) => {
+router.get('/:username', ensureCorrectUserOrTeacher, async (req, res, next) => {
   try {
     const studentAssignments = await StudentAssignment.getAll(
       req.params.username
