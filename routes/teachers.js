@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = new express.Router();
 const Teacher = require('../models/teacher');
+const Student = require('../models/student');
 const User = require('../models/user');
 const { ensureLoggedIn, ensureCorrectUser } = require('../middleware/auth');
 const { NotFoundError } = require('../expressError');
@@ -19,10 +20,14 @@ router.get('/', async (req, res, next) => {
 
 /** Get teacher info. */
 
-router.get('/:username', async (req, res, next) => {
+router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
     const { username } = req.params;
     const teacher = await Teacher.get(username);
+    const students = await Student.getAll(teacher.teacherID);
+
+    teacher.students = students;
+
     return res.send({ teacher });
   } catch (err) {
     return next(err);
