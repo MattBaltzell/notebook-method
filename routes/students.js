@@ -1,6 +1,7 @@
 const express = require('express');
 const { UnauthorizedError } = require('../expressError');
 const { ensureTeacher } = require('../middleware/auth');
+const StudentAssignment = require('../models/assignment');
 const Student = require('../models/student');
 const Teacher = require('../models/teacher');
 const router = new express.Router();
@@ -20,9 +21,11 @@ router.get('/', ensureTeacher, async function (req, res, next) {
 /** Get student by username */
 
 router.get('/:username', async (req, res, next) => {
-  const username = req.params.username;
+  const { username } = req.params;
   try {
     const student = await Student.get(username);
+    const studentAssignments = await StudentAssignment.getAll(username);
+    student.assignments = studentAssignments;
     return res.send({ student });
   } catch (e) {
     return next(e);
