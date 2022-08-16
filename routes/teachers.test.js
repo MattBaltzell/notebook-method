@@ -11,6 +11,7 @@ const {
   commonAfterAll,
   u4Token,
   a1Token,
+  t1Token,
 } = require('./_testCommon');
 
 beforeAll(commonBeforeAll);
@@ -55,7 +56,9 @@ describe('GET /teachers', function () {
 
 describe('GET /teachers/:username', function () {
   test('works', async function () {
-    const resp = await request(app).get('/teachers/u3');
+    const resp = await request(app)
+      .get('/teachers/u3')
+      .set('authorization', `Bearer ${t1Token}`);
     expect(resp.body).toEqual({
       teacher: {
         userID: expect.any(Number),
@@ -68,6 +71,18 @@ describe('GET /teachers/:username', function () {
         avatarURL: null,
         joinAt: expect.any(String),
         lastLoginAt: null,
+        students: [
+          {
+            userID: expect.any(Number),
+            studentID: expect.any(Number),
+            username: 'u5',
+            email: 'user5@user.com',
+            firstName: 'U5F',
+            lastName: 'U5L',
+            grade: '3',
+            userTypeID: 3,
+          },
+        ],
       },
     });
   });
@@ -101,10 +116,6 @@ describe('DELETE /teachers/:username', function () {
       .get('/users/u4')
       .set('authorization', `Bearer ${u4Token}`);
 
-    console.log(
-      '====================================================================='
-    );
-    console.log(userRes.body);
     expect(userRes.body.user.userTypeID).toEqual(1);
   });
 });
