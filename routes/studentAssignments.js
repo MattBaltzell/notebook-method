@@ -1,19 +1,20 @@
 const express = require('express');
 
 const router = new express.Router();
-const Teacher = require('../models/teacher');
-const Assignment = require('../models/assignment');
+const StudentAssignment = require('../models/studentAssignment');
 const {
   ensureLoggedIn,
   ensureTeacher,
   ensureCorrectUser,
 } = require('../middleware/auth');
 
-/** Get list of all student assignments. */
+/** Get list of all assignments for a student */
 
-router.get('/', async (req, res, next) => {
+router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
-    const studentAssignments = await Assignment.getAllStudentAssignments();
+    const studentAssignments = await StudentAssignment.getAll(
+      req.params.username
+    );
     return res.send({ studentAssignments });
   } catch (err) {
     return next(err);
@@ -22,10 +23,23 @@ router.get('/', async (req, res, next) => {
 
 /** Get student assignment based on id. */
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:username/:id', ensureCorrectUser, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const studentAssignment = await Assignment.getStudentAssignment(id);
+    const studentAssignment = await StudentAssignment.get(id);
+    return res.send({ studentAssignment });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.patch('/:username/:id', ensureCorrectUser, async (req, res, next) => {
+  try {
+    const data = req.body;
+    const studentAssignment = await StudentAssignment.update(
+      req.params.id,
+      data
+    );
     return res.send({ studentAssignment });
   } catch (err) {
     return next(err);
@@ -34,15 +48,17 @@ router.get('/:id', async (req, res, next) => {
 
 /** Assign to Student */
 
-router.post('/:assignmentID', async (req, res, next) => {
+router.post('/:id', ensureTeacher, async (req, res, next) => {
   try {
-    const { assignmentID } = req.params;
+    const user = req.currentUser;
+    console.log(user);
+    const assignmentID = req.params.id;
     const { studentID, dateDue } = req.body;
-    const studentAssignment = await Assignment.assign(
+    const studentAssignment = await StudentAssignment.assign({
       assignmentID,
       studentID,
-      dateDue
-    );
+      dateDue,
+    });
     return res.send({ studentAssignment });
   } catch (err) {
     return next(err);
