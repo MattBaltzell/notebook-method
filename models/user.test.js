@@ -78,6 +78,19 @@ describe('register', function () {
     expect(found.rows[0].password.startsWith('$2b$')).toEqual(true);
   });
 
+  test('works: adds admin', async function () {
+    let user = await User.register({
+      ...newUser,
+      password: 'password',
+      isAdmin: true,
+    });
+    expect(user).toEqual({ ...newUser, id: expect.any(Number), isAdmin: true });
+    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
+    expect(found.rows.length).toEqual(1);
+    expect(found.rows[0].is_admin).toEqual(true);
+    expect(found.rows[0].password.startsWith('$2b$')).toEqual(true);
+  });
+
   test('bad request with dup data', async function () {
     try {
       await User.register({
@@ -120,6 +133,15 @@ describe('updateLoginTimestamp', function () {
     expect(found2.rows[0].last_login_at).not.toBeNull();
     expect(found2.rows[0].last_login_at).toEqual(expect.any(Date));
   });
+
+  test('not found if no such user', async function () {
+    try {
+      await User.updateLoginTimestamp('nope');
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });
 
 /************************************** update user type */
@@ -142,9 +164,31 @@ describe('updateUserType', function () {
     expect(found1.rows[0].user_type_id).toEqual(1);
 
     // Test that user_type_id changes when updateUserType is called
-    User.updateUserType('new', 2);
+    await User.updateUserType('new', 2);
     const found2 = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found2.rows[0].user_type_id).toEqual(2);
+  });
+
+  test('not found if no such user', async function () {
+    try {
+      await User.updateUserType('nope', 2);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test('not found if no such userTypeID', async function () {
+    try {
+      let user = await User.register({
+        ...newUser,
+        password: 'password',
+      });
+      await User.updateUserType('new', 0);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
   });
 });
 
@@ -190,6 +234,30 @@ describe('getAll', function () {
         lastLoginAt: null,
         isAdmin: false,
       },
+      {
+        id: expect.any(Number),
+        username: 'u4',
+        firstName: 'U4F',
+        lastName: 'U4L',
+        email: 'u4@email.com',
+        avatarURL: null,
+        userTypeID: 2,
+        joinAt: expect.any(Date),
+        lastLoginAt: null,
+        isAdmin: false,
+      },
+      {
+        id: expect.any(Number),
+        username: 'u5',
+        firstName: 'U5F',
+        lastName: 'U5L',
+        email: 'u5@email.com',
+        avatarURL: null,
+        userTypeID: 3,
+        joinAt: expect.any(Date),
+        lastLoginAt: null,
+        isAdmin: false,
+      },
     ]);
   });
 });
@@ -226,20 +294,34 @@ describe('get', function () {
 /************************************** update() */
 
 describe('update', function () {
+  const updateData = {
+    email: 'new1@test.com',
+    firstName: 'newF',
+    lastName: 'newL',
+    avatarURL: 'test',
+  };
+
   test('works', async function () {
-    await User.update('u1', {
-      email: 'new1@test.com',
-      firstName: 'newF',
-      lastName: 'newL',
-      avatarURL: 'test',
+    const user = await User.update('u1', updateData);
+
+    expect(user).toEqual({ ...updateData, isAdmin: false, username: 'u1' });
+  });
+
+  test('works: set password', async function () {
+    let user = await User.update('u1', {
+      password: 'new',
     });
-    const result = await db.query("SELECT * FROM users WHERE username='u1'");
-    const user = result.rows[0];
-    expect(result.rows.length).toEqual(1);
-    expect(user.email).toEqual('new1@test.com');
-    expect(user.first_name).toEqual('newF');
-    expect(user.last_name).toEqual('newL');
-    expect(user.avatar_url).toEqual('test');
+    expect(user).toEqual({
+      username: 'u1',
+      firstName: 'U1F',
+      lastName: 'U1L',
+      email: 'u1@email.com',
+      isAdmin: false,
+      avatarURL: null,
+    });
+    const found = await db.query("SELECT * FROM users WHERE username = 'u1'");
+    expect(found.rows.length).toEqual(1);
+    expect(found.rows[0].password.startsWith('$2b$')).toEqual(true);
   });
 
   test('not found if no such user', async function () {
@@ -253,6 +335,16 @@ describe('update', function () {
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test('bad request if no data', async function () {
+    expect.assertions(1);
+    try {
+      await User.update('u1', {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
 });
