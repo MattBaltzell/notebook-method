@@ -120,16 +120,28 @@ class User {
    */
 
   static async updateUserType(username, userTypeID) {
+    const typeRes = await db.query(
+      `SELECT id 
+          FROM user_types 
+          WHERE id=$1`,
+      [userTypeID]
+    );
+
+    if (!typeRes.rows[0])
+      throw new NotFoundError(`No user type: ${userTypeID}`);
+
     const result = await db.query(
       `UPDATE users
-        SET user_type_id=$1
-        WHERE username=$2
-        RETURNING username, user_type_id AS "userTypeID"`,
+      SET user_type_id=$1
+      WHERE username=$2
+      RETURNING username, user_type_id AS "userTypeID"`,
       [userTypeID, username]
     );
 
     const user = result.rows[0];
     if (!user) throw new NotFoundError(`No user: ${username}`);
+
+    return user;
   }
 
   /** Get all users
