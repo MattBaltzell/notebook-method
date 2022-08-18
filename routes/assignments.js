@@ -1,27 +1,31 @@
 const express = require('express');
 
 const router = new express.Router();
-const Teacher = require('../models/teacher');
 const Assignment = require('../models/assignment');
-const {
-  ensureLoggedIn,
-  ensureCorrectUser,
-  ensureTeacher,
-} = require('../middleware/auth');
-const StudentAssignment = require('../models/studentAssignment');
+const { ensureCorrectUser, ensureTeacher } = require('../middleware/auth');
 
-/** Get list of all assignments for a teacher. */
+/** GET /[username] => { [assignment, assignment, assignment, ...] }
+ *
+ * Get list of all assignments for a teacher.
+ *
+ * Returns  { assignments: [ {id,title,instructions, teacherID, subjectCode }, ... ] }
+ *
+ * Auth = correct user
+ * */
 
 router.get('/:username', ensureCorrectUser, async (req, res, next) => {
   try {
-    const assignments = await Assignment.getAll(req.params.username);
+    const assignments = await Assignment.getAllForTeacher(req.params.username);
     return res.send({ assignments });
   } catch (err) {
     return next(err);
   }
 });
 
-/** Get assignment by id */
+/** Get assignment by id
+ *
+ * NOT SURE IF THIS IS THE BEST PLACE FOR THIS ROUTE
+ */
 
 router.get('/:username/:id', ensureCorrectUser, async (req, res, next) => {
   try {
