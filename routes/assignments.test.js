@@ -9,8 +9,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  t1Token,
-  t2Token,
+  u3Token,
   a1Token,
 } = require('./_testCommon');
 
@@ -21,11 +20,11 @@ afterAll(commonAfterAll);
 
 /************************************** GET /assignments/teacher/:username */
 
-describe('GET /assignments/teacher/:username', function () {
+describe('GET /assignments/:username', function () {
   test('works', async function () {
     const resp = await request(app)
       .get('/assignments/u3')
-      .set('authorization', `Bearer ${t1Token}`);
+      .set('authorization', `Bearer ${u3Token}`);
     expect(resp.body).toEqual({
       assignments: [
         {
