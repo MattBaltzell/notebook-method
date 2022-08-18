@@ -134,20 +134,24 @@ async function commonAfterAll() {
   await db.end();
 }
 
-const u1Token = createToken({ username: 'u1', userTypeID: 1, isAdmin: false });
-const u4Token = createToken({ username: 'u4', userTypeID: 2, isAdmin: false });
 const a1Token = createToken({ username: 'a1', userTypeID: 1, isAdmin: true });
-const t1Token = createToken({ username: 'u3', userTypeID: 2, isAdmin: false });
-const t2Token = createToken({ username: 'u4', userTypeID: 2, isAdmin: false });
+const u1Token = createToken({ username: 'u1', userTypeID: 1, isAdmin: false });
+const u2Token = createToken({ username: 'u2', userTypeID: 1, isAdmin: false });
+const u3Token = createToken({ username: 'u3', userTypeID: 2, isAdmin: false });
+const u4Token = createToken({ username: 'u4', userTypeID: 2, isAdmin: false });
+const u5Token = createToken({ username: 'u5', userTypeID: 3, isAdmin: false });
+const u6Token = createToken({ username: 'u6', userTypeID: 3, isAdmin: false });
 
 module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u1Token,
-  u4Token,
   a1Token,
-  t1Token,
-  t2Token,
+  u1Token,
+  u2Token,
+  u3Token,
+  u4Token,
+  u5Token,
+  u6Token,
 };
