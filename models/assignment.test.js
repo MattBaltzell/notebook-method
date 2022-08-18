@@ -1,11 +1,12 @@
 'use strict';
 
-const { NotFoundError } = require('../expressError');
+const { NotFoundError, BadRequestError } = require('../expressError');
 const db = require('../db.js');
 const Assignment = require('./assignment.js');
 const StudentAssignment = require('./studentAssignment.js');
 const Teacher = require('./teacher.js');
 const Student = require('./student.js');
+const User = require('./user.js');
 
 const {
   commonBeforeAll,
@@ -43,12 +44,11 @@ describe('create', function () {
   });
 });
 
-/************************************** getAll(teacherID) */
+/************************************** getAllForTeacher(teacherID) */
 
-describe('getAll', function () {
+describe('getAllForTeacher', function () {
   test('works', async function () {
-    await Teacher.add('u2');
-    const teacher = await Teacher.get('u2');
+    const teacher = await Teacher.get('u4');
 
     const assignment1 = await Assignment.create({
       title: 'Test1',
@@ -63,9 +63,16 @@ describe('getAll', function () {
       teacherID: teacher.teacherID,
     });
 
-    const assignments = await Assignment.getAll(teacher.username);
+    const assignments = await Assignment.getAllForTeacher(teacher.username);
 
     expect(assignments).toEqual([
+      {
+        id: expect.any(Number),
+        instructions: 'Instructions for Assignment 1',
+        subjectCode: 'HIST1',
+        teacherID: teacher.teacherID,
+        title: 'Assignment1',
+      },
       {
         id: expect.any(Number),
         instructions: 'Testing1',
@@ -114,84 +121,92 @@ describe('get', function () {
   });
 });
 
-/***************************** getAllStudentAssignments() */
+/************************************** update() */
 
-describe('getAllStudentAssignments', function () {
+describe('update', function () {
+  const updateData = {
+    title: 'Updated Assignment 1',
+    subjectCode: 'SCI3',
+    instructions: 'Updated instructions',
+  };
+
   test('works', async function () {
-    const teacher = await Teacher.add('u2');
-    const student1 = await Student.add('u1', teacher.teacherID, '6');
-    const student2 = await Student.add('u3', teacher.teacherID, '6');
+    const assignmentRes = await db.query(
+      `SELECT id FROM assignments WHERE title='Assignment1'`
+    );
+    const assignment1 = assignmentRes.rows[0];
+    const assignment = await Assignment.update(assignment1.id, updateData);
 
-    const assignment1 = await Assignment.create({
-      title: 'Test1',
-      subjectCode: 'MATH1',
-      instructions: 'Testing1',
-      teacherID: teacher.teacherID,
+    expect(assignment).toEqual({
+      ...updateData,
+      id: expect.any(Number),
+      teacherID: expect.any(Number),
     });
+  });
 
-    await StudentAssignment.assign({
-      assignmentID: assignment1.id,
-      studentID: student1.studentID,
-      dateDue: '08/20/2022',
-    });
-    await StudentAssignment.assign({
-      assignmentID: assignment1.id,
-      studentID: student2.studentID,
-      dateDue: '08/22/2022',
-    });
+  test('not found if no such assignment', async function () {
+    try {
+      await Assignment.update(0, { subjectCode: 'MATH1' });
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      expect(err.message).toEqual('No assignment: 0');
+    }
+  });
 
-    const studentAssignments = await StudentAssignment.getAll('u1');
-    expect(studentAssignments).toEqual([
-      {
-        id: expect.any(Number),
-        assignmentID: expect.any(Number),
-        studentID: student1.studentID,
-        dateAssigned: expect.any(Date),
-        dateDue: new Date('08/20/2022'),
-        dateSubmitted: null,
-        dateApproved: null,
-        isSubmitted: false,
-        isApproved: false,
-      },
-    ]);
+  test('not found if no such subjectCode', async function () {
+    try {
+      const assignmentRes = await db.query(
+        `SELECT id FROM assignments WHERE title='Assignment1'`
+      );
+      const assignment1 = assignmentRes.rows[0];
+      await Assignment.update(assignment1.id, {
+        subjectCode: 'FakeSubj',
+      });
+
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      expect(err.message).toEqual(`No subject code: FakeSubj`);
+    }
+  });
+
+  test('bad request if no data', async function () {
+    expect.assertions(1);
+    try {
+      const assignmentRes = await db.query(
+        `SELECT id FROM assignments WHERE title='Assignment1'`
+      );
+      const assignment1 = assignmentRes.rows[0];
+      await Assignment.update(assignment1, {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
   });
 });
 
-/************************************** toggleSubmit() */
+/************************************** delete() */
 
-describe('toggleSubmit', function () {
+describe('delete', function () {
   test('works', async function () {
-    const teacher = await Teacher.add('u2');
-    const student = await Student.add('u1', teacher.teacherID, '3');
-
-    const assignment = await Assignment.create({
-      title: 'Test Assignment 1',
-      subjectCode: 'MATH1',
-      instructions: 'Complete workbook pages and then wait for teacher.',
-      teacherID: teacher.teacherID,
-    });
-
-    const studentAssignment = await StudentAssignment.assign({
-      assignmentID: assignment.id,
-      studentID: student.studentID,
-      dateDue: '08/20/2022',
-    });
-
-    // test submission
-    const subResp = await StudentAssignment.toggleSubmit(studentAssignment.id);
-    expect(subResp).toEqual({ id: studentAssignment.id, isSubmitted: true });
-    // test unsubmission
-    const unSubResp = await StudentAssignment.toggleSubmit(
-      studentAssignment.id
+    const assignmentRes = await db.query(
+      `SELECT id FROM assignments WHERE title='Assignment1'`
     );
-    expect(unSubResp).toEqual({ id: studentAssignment.id, isSubmitted: false });
+    const deleted = await Assignment.delete(assignmentRes.rows[0].id);
+    expect(deleted).toEqual({ deleted: assignmentRes.rows[0].id });
+    const result = await db.query(
+      `SELECT id FROM assignments WHERE title='Assignment1'`
+    );
+    expect(result.rows.length).toEqual(0);
   });
 
-  test('notfounderror when invalid assignment id given', async function () {
+  test('not found if no such assignment', async function () {
     try {
-      await StudentAssignment.toggleSubmit(0);
+      await Assignment.delete(0);
       fail();
     } catch (err) {
+      expect(err.message).toEqual(`No assignment: 0`);
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
