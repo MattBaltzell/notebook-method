@@ -61,7 +61,7 @@ describe('get', function () {
     });
   });
 
-  test('notfounderror if student with given username is not found', async function () {
+  test('not found on bad username', async function () {
     try {
       await Student.get('imposter');
       fail();
@@ -101,7 +101,7 @@ describe('add', function () {
     expect(student.userTypeID).toEqual(3);
   });
 
-  test('notfounderror if username doesnt exist', async function () {
+  test('not found on bad username', async function () {
     try {
       const teacher = await Teacher.add('u2');
       await Student.add('imposter', teacher.teacherID, '3');
@@ -112,7 +112,7 @@ describe('add', function () {
     }
   });
 
-  test('notfounderror if teacherID doesnt exist', async function () {
+  test('not found on bad teacherID', async function () {
     try {
       await Student.add('u1', 0, '3');
       fail();
@@ -146,7 +146,7 @@ describe('update', function () {
     expect(student.teacher_id).toEqual(teacher2.teacherID);
   });
 
-  test('not found if no such user', async function () {
+  test('not found on bad username', async function () {
     const teacher1 = await Teacher.add('u2');
     try {
       await Student.update('imposter', {
@@ -159,7 +159,7 @@ describe('update', function () {
     }
   });
 
-  test('not found if no such teacherID', async function () {
+  test('not found on bad teacherID', async function () {
     try {
       await Student.update('u1', {
         grade: '4',
@@ -201,7 +201,7 @@ describe('delete', function () {
     expect(result.rows.length).toEqual(0);
   });
 
-  test('notfounderror if username doesnt exist', async function () {
+  test('not found on bad username', async function () {
     try {
       await Student.delete('imposter');
       fail();
