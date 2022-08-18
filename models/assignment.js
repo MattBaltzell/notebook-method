@@ -1,14 +1,16 @@
-/** User  */
+/** Assignment  */
 
 const db = require('../db');
-const {
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} = require('../expressError');
+const { NotFoundError } = require('../expressError');
+const { sqlForPartialUpdate } = require('../helpers/sql');
 
 class Assignment {
-  /** Create new assignment */
+  /** Create new assignment with data
+   *
+   * Returns { id, title, subjectCode, instructions, teacherID }
+   *
+   * NotFoundError if teacher not found
+   */
 
   static async create({ title, subjectCode, instructions, teacherID }) {
     const teacherRes = await db.query(`SELECT id FROM teachers WHERE id=$1`, [
@@ -45,7 +47,9 @@ class Assignment {
 
   /** Get all assignments for a given teacher
    *
+   * Returns [ { id, title, instructions, teacherID, subjectCode }, ... ]
    *
+   * NotFoundError if teacher not found
    */
   static async getAll(username) {
     const result = await db.query(
@@ -65,12 +69,16 @@ class Assignment {
     );
     const assignments = result.rows;
 
+    if (!assignments) throw new NotFoundError(`No teacher: ${username}`);
+
     return assignments;
   }
 
   /** Get assignments by id
    *
+   * Returns { id, title, instructions, teacherID, subjectCode }
    *
+   * NotFoundError if assignment not found
    */
   static async get(id) {
     const result = await db.query(
@@ -89,6 +97,12 @@ class Assignment {
     return assignment;
   }
 
+  /** Given assignment id, get all studentAssignments for an assignment
+   *
+   * Returns [ { id, assignmentID, studentID, dateAssigned, dateDue, dateSubmitted, dateApproved, isSubmitted, isApproved }, ... ]
+   *
+   * NotFoundError if assignment not found
+   */
   static async getStudentAssignments(id) {
     const result = await db.query(
       `SELECT 
@@ -107,18 +121,68 @@ class Assignment {
       [id]
     );
     const assignments = result.rows;
+
+    if (!assignments) throw new NotFoundError(`No assignment: ${id}`);
+
     return assignments;
   }
 
   /** Update assignments by id
    *
+   * Data can include:
+   *   { title, instructions, subjectCode }
    *
+   * Returns { id, title, instructions, subjectCode, teacherID }
    */
+  static async update(id, data) {
+    // Check if subject code exists
+    if (data.subjectCode) {
+      const subject = await db.query(
+        `SELECT code FROM subjects WHERE code=$1`,
+        [data.subjectCode]
+      );
+      if (!subject.rows[0])
+        throw new NotFoundError(`No subject code: ${data.subjectCode}`);
+    }
+
+    // update assignment
+    const { setCols, values } = sqlForPartialUpdate(data, {
+      subjectCode: 'subject_code',
+    });
+    const assignmentIDVarIdx = '$' + (values.length + 1);
+    const querySql = `UPDATE assignments 
+  SET ${setCols} 
+  WHERE id = ${assignmentIDVarIdx} 
+  RETURNING id,
+            title,
+            instructions,
+            subject_code AS "subjectCode",
+            teacher_id AS "teacherID"
+            `;
+    const result = await db.query(querySql, [...values, id]);
+    const updatedAssignment = result.rows[0];
+
+    if (!updatedAssignment) throw new NotFoundError(`No assignment: ${id}`);
+
+    return updatedAssignment;
+  }
 
   /** Delete assignments by id
    *
+   * Returns { deleted: id }
    *
+   * NotFoundError if assignment doesnt exist
    */
+
+  static async delete(id) {
+    const result = await db.query(
+      `DELETE FROM assignments WHERE id=$1 RETURNING id`,
+      [id]
+    );
+    if (!result.rows[0]) throw new NotFoundError(`No assignment: ${id}`);
+
+    return { deleted: id };
+  }
 }
 
 module.exports = Assignment;
