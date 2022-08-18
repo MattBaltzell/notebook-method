@@ -3,7 +3,6 @@ const express = require('express');
 const router = new express.Router();
 const StudentAssignment = require('../models/studentAssignment');
 const {
-  ensureLoggedIn,
   ensureTeacher,
   ensureCorrectUser,
   ensureCorrectUserOrTeacher,
