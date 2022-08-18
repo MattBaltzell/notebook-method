@@ -51,7 +51,7 @@ class Assignment {
    *
    * NotFoundError if teacher not found
    */
-  static async getAll(username) {
+  static async getAllForTeacher(username) {
     const result = await db.query(
       `SELECT 
         id, 
@@ -95,36 +95,6 @@ class Assignment {
     const assignment = result.rows[0];
 
     return assignment;
-  }
-
-  /** Given assignment id, get all studentAssignments for an assignment
-   *
-   * Returns [ { id, assignmentID, studentID, dateAssigned, dateDue, dateSubmitted, dateApproved, isSubmitted, isApproved }, ... ]
-   *
-   * NotFoundError if assignment not found
-   */
-  static async getStudentAssignments(id) {
-    const result = await db.query(
-      `SELECT 
-        id,
-        assignment_id AS "assignmentID",
-        student_id AS "studentID",
-        date_assigned AS "dateAssigned",
-        date_due AS "dateDue",
-        date_submitted AS "dateSubmitted",
-        date_approved AS "dateApproved",
-        is_submitted AS "isSubmitted",
-        is_approved AS "isApproved"
-      FROM students_assignments
-      WHERE assignment_id=$1
-      ORDER BY date_due`,
-      [id]
-    );
-    const assignments = result.rows;
-
-    if (!assignments) throw new NotFoundError(`No assignment: ${id}`);
-
-    return assignments;
   }
 
   /** Update assignments by id
