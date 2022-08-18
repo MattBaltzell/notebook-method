@@ -9,9 +9,8 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u4Token,
   a1Token,
-  t1Token,
+  u3Token,
 } = require('./_testCommon');
 
 beforeAll(commonBeforeAll);
@@ -58,7 +57,7 @@ describe('GET /teachers/:username', function () {
   test('works', async function () {
     const resp = await request(app)
       .get('/teachers/u3')
-      .set('authorization', `Bearer ${t1Token}`);
+      .set('authorization', `Bearer ${u3Token}`);
     expect(resp.body).toEqual({
       teacher: {
         userID: expect.any(Number),
@@ -93,8 +92,8 @@ describe('GET /teachers/:username', function () {
 describe('DELETE /teachers/:username', function () {
   test('works', async function () {
     const resp = await request(app)
-      .delete('/teachers/u4')
-      .set('authorization', `Bearer ${a1Token}`);
+      .delete('/teachers/u3')
+      .set('authorization', `Bearer ${u3Token}`);
     expect(resp.body).toEqual({ message: 'Deleted.' });
 
     const teachers = await request(app).get('/teachers');
@@ -103,18 +102,18 @@ describe('DELETE /teachers/:username', function () {
         {
           userID: expect.any(Number),
           teacherID: expect.any(Number),
-          username: 'u3',
-          firstName: 'U3F',
-          lastName: 'U3L',
-          email: 'user3@user.com',
+          username: 'u4',
+          firstName: 'U4F',
+          lastName: 'U4L',
+          email: 'user4@user.com',
           userTypeID: 2,
         },
       ],
     });
 
     const userRes = await request(app)
-      .get('/users/u4')
-      .set('authorization', `Bearer ${u4Token}`);
+      .get('/users/u3')
+      .set('authorization', `Bearer ${u3Token}`);
 
     expect(userRes.body.user.userTypeID).toEqual(1);
   });
