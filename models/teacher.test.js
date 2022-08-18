@@ -25,6 +25,15 @@ describe('getAll', function () {
       {
         userID: expect.any(Number),
         teacherID: expect.any(Number),
+        username: 'u4',
+        firstName: 'U4F',
+        lastName: 'U4L',
+        email: 'u4@email.com',
+        userTypeID: 2,
+      },
+      {
+        userID: expect.any(Number),
+        teacherID: expect.any(Number),
         username: 'u1',
         firstName: 'U1F',
         lastName: 'U1L',
