@@ -92,7 +92,7 @@ class Teacher {
 
     const teacher = teacherRes.rows[0];
 
-    User.updateUserType(username, 2);
+    await User.updateUserType(username, 2);
 
     if (!teacher) {
       throw new NotFoundError(`Teacher not found`);
@@ -124,7 +124,7 @@ class Teacher {
       throw new NotFoundError(`No teacher: ${username}`);
     }
 
-    User.updateUserType(username, 1);
+    await User.updateUserType(username, 1);
 
     return teacher;
   }
