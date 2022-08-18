@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/studentAssignmentUpdate.json",
+  "type": "object",
+  "properties": {
+    "dateDue": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateSubmitted": {
+      "type": "string",
+      "format": "date"
+    },
+    "isSubmitted": {
+      "type": "boolean"
+    },
+    "dateApproved": {
+      "type": "string",
+      "format": "date"
+    },
+    "isApproved": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false,
+  "required": []
+}

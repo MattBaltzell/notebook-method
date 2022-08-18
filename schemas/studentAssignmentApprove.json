@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/studentAssignmentApprove.json",
+  "type": "object",
+  "properties": {
+    "dateApproved": {
+      "type": "string",
+      "format": "date"
+    },
+    "isApproved": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["isApproved"]
+}
