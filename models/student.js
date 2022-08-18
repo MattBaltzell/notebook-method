@@ -122,7 +122,7 @@ class Student {
 
     const student = studentRes.rows[0];
 
-    User.updateUserType(username, 3);
+    await User.updateUserType(username, 3);
 
     if (!student) {
       throw new NotFoundError(`Student not found`);
@@ -201,7 +201,7 @@ class Student {
     );
     const student = studentRes.rows[0];
 
-    User.updateUserType(username, 1);
+    await User.updateUserType(username, 1);
 
     return student;
   }
