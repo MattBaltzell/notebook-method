@@ -2,9 +2,9 @@ const { BadRequestError } = require('../expressError');
 
 /** Sets the SQL columns to update and sets values for those columns.
  *
- * Creates SET parameters in SQL (Example: "SET first_name=$1, age=$2")
+ * Creates SET parameters in SQL (Example: "SET first_name=$1, user_type_id=$2")
  *
- * Creates VALUES parameters in SQL (Example: "VALUES ("Jeff", 32)")
+ * Creates VALUES parameters in SQL (Example: "VALUES ("Jeff", 2)")
  *
  * Returns {setCols: string of SQL SET parameters, values: [array of values]}
  *
