@@ -2,6 +2,7 @@
 
 const db = require('../db');
 const { NotFoundError } = require('../expressError');
+const { sqlForPartialUpdate } = require('../helpers/sql');
 
 class StudentAssignment {
   /** Assign to student: Creates new studentAssignment
@@ -101,7 +102,7 @@ class StudentAssignment {
     const userRes = await db.query(`SELECT id FROM users WHERE username=$1`, [
       username,
     ]);
-    if (!userRes.rows[0]) throw new NotFoundError(`No user: ${username}`);
+    if (!userRes.rows[0]) throw new NotFoundError(`No student: ${username}`);
 
     //
     const result = await db.query(
@@ -135,10 +136,21 @@ class StudentAssignment {
    */
   static async get(id) {
     const result = await db.query(
-      `SELECT * FROM students_assignments WHERE id=$1`,
+      `SELECT id,
+      assignment_id AS "assignmentID",
+      student_id AS "studentID",
+      date_assigned AS "dateAssigned",
+      date_due AS "dateDue",
+      date_submitted AS "dateSubmitted",
+      date_approved AS "dateApproved",
+      is_submitted AS "isSubmitted",
+      is_approved AS "isApproved" 
+      FROM students_assignments WHERE id=$1`,
       [id]
     );
     const studentAssignment = result.rows[0];
+    if (!studentAssignment)
+      throw new NotFoundError(`No student assignment: ${id}`);
 
     return studentAssignment;
   }
@@ -175,7 +187,7 @@ class StudentAssignment {
       isApproved: 'is_approved',
     });
     const assignmentIDVarIdx = '$' + (values.length + 1);
-    const querySql = `UPDATE studentAssignments 
+    const querySql = `UPDATE students_assignments 
     SET ${setCols} 
     WHERE id = ${assignmentIDVarIdx} 
     RETURNING id,
@@ -190,9 +202,6 @@ class StudentAssignment {
     const result = await db.query(querySql, [...values, assignment.id]);
     const studentAssignment = result.rows[0];
 
-    if (!studentAssignment)
-      throw new NotFoundError(`No student assignment: ${id}`);
-
     return studentAssignment;
   }
 
@@ -205,12 +214,13 @@ class StudentAssignment {
 
   static async delete(id) {
     const result = await db.query(
-      `DELETE FROM students_assignments WHERE id=$1`,
+      `DELETE FROM students_assignments WHERE id=$1
+      RETURNING id`,
       [id]
     );
 
     if (!result.rows[0])
-      throw new NotFoundError(`No student Assignment: ${id}`);
+      throw new NotFoundError(`No student assignment: ${id}`);
 
     return { deleted: id };
   }
