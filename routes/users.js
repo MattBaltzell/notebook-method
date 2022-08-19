@@ -1,16 +1,8 @@
 const jsonschema = require('jsonschema');
 
 const express = require('express');
-const {
-  ensureLoggedIn,
-  ensureAdmin,
-  ensureCorrectUser,
-} = require('../middleware/auth');
-const {
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} = require('../expressError');
+const { ensureAdmin, ensureCorrectUser } = require('../middleware/auth');
+const { NotFoundError, BadRequestError } = require('../expressError');
 const { createToken } = require('../helpers/tokens');
 const userUpdateSchema = require('../schemas/userUpdate.json');
 const userNewSchema = require('../schemas/userNew.json');
@@ -48,7 +40,7 @@ router.post('/', ensureAdmin, async function (req, res, next) {
 
 /** Show all users */
 
-router.get('/', async function (req, res, next) {
+router.get('/', ensureAdmin, async function (req, res, next) {
   try {
     const users = await User.getAll();
     return res.send({ users });
